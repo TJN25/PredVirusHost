@@ -44,10 +44,11 @@ def assign_separators(format):
             sys.exit(f'File format: {format} not valid. Please provide a valid file format (RefSeq, Genbank, Prokka, MGRAST).')
     return start_pos, end_pos, separator
 
-def file_reformat(separators, args, f, tmp_f,user_output_folder):
-    subprocess.run(["sed", "s/ /*/g", args.input], stdout=tmp_f)
-    if separators[1] == 0 and separators[2] > 0:
-        subprocess.run(["sed", f's/{separators[2]}/ /{separators[0]}', os.path.join(user_output_folder, "tmp.txt")], stdout=f)
+def file_reformat(separators, args, f, tmp_1, fasta_file,user_output_folder):
+    ##TODO include other file types in this process. See predvirushost.sh
+    subprocess.run(["sed", "s/ /*/g", args.input], stdout=tmp_1)
+    subprocess.run(["sed", f's/{separators[2]}/ /{separators[0]}', os.path.join(user_output_folder, "tmp1")], stdout=fasta_file)
+    subprocess.run(["grep", '>', os.path.join(user_output_folder, "fastafile.faa")], stdout=f)
 
 if __name__ == '__main__':
     args = get_args()
@@ -57,9 +58,11 @@ if __name__ == '__main__':
         os.mkdir(user_output_folder)
     except FileExistsError:
         pass
-    tmp_f = open(f'{user_output_folder}/tmp.txt', 'w')
+    tmp_1 = open(f'{user_output_folder}/tmp1', 'w')
+    fasta_file = open(f'{user_output_folder}/fastafile.faa', 'w')
     f = open(f'{user_output_folder}/fasta-headers.txt', 'w')
     
-    file_reformat(separators, args, f, tmp_f,user_output_folder)
-    # subprocess.run(["head", args.input])
-    # print(f'Arguments: {args}\nUser path: {user_folder}\nUser output path: {user_output_folder}\nScripts path: {predvirushost_folder}')
+    file_reformat(separators, args, f, tmp_1, fasta_file, user_output_folder)
+    f.close()
+    tmp_1.close()
+    fasta_file.close()
