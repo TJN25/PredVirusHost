@@ -111,12 +111,3 @@ euVOG_hmm=$FILE_PATH/data/euVOG.hmm
  hmmsearch --tblout $output_file.tmp.folder/euVOG_res.txt --noali --cpu $CPUS  $euVOG_hmm $file1_input >> $output_file.tmp.folder/hmm_output.txt
  echo 'Running HMMSearch on '$file1' and baPOG models'
  hmmsearch --tblout $output_file.tmp.folder/baPOG_res.txt --noali --cpu $CPUS $baPOG_hmm $file1_input >> $output_file.tmp.folder/hmm_output.txt
- echo 'Making Protein List'
-
-# Calculates a score indicating which domain the genome likely belongs to
-host_scoring.R $FILE_PATH $output_file.tmp.folder
-
-
-cp $output_file.tmp.folder/scores.txt ./$output_file.scores.txt
-
-keep_files_=$keep_files
