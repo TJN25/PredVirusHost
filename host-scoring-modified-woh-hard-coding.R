@@ -74,5 +74,20 @@ res <- res%>%
 proteinCounts <- genome_lookup%>%group_by(genome)%>%summarise(protein.counts = n())
 
 res <- res%>%left_join(proteinCounts, by = "genome")
+res2 <- res %>% mutate(max.score = ifelse(archaeal_score > eukaryotic_score, ifelse(archaeal_score > phage_score, archaeal_score, phage_score), ifelse(eukaryotic_score > phage_score, eukaryotic_score, phage_score)))
+res2$call2 <- res2$call
+res2$call2[res2$max.score < 150] <- "none"
 
-write.table(res, paste(filePath2, "/scores.txt", sep = ""), col.names = T, row.names = F, quote = F, sep = "\t")
+  
+write.table(res2, paste("/Users/nicth99p/bin/projects/PredVirusHost/sequences/protein/archaea_output/", "/scores.txt", sep = ""), col.names = T, row.names = F, quote = F, sep = "\t")
+
+
+## Check Archaeal viruses for Asgard viruses being classified
+lokiEE <- ee %>% filter(grepl("loki", description.of.target, ignore.case = TRUE, fixed = F))
+helaEE <- ee %>% filter(grepl("hela", description.of.target, ignore.case = TRUE, fixed = F))
+asgardEE <- ee %>% filter(grepl("asgard", description.of.target, ignore.case = TRUE, fixed = F))
+
+asgardEE <- asgardEE %>% rbind(lokiEE) %>% rbind(helaEE) %>% unique()
+asgardModels <- asgardEE %>% group_by(query.name) %>% summarise(count = n(), 
+                                                                score = mean(score))
+
