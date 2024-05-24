@@ -22,6 +22,8 @@ def get_args():
     args = parser.parse_args()
     return(args)
 
+
 if __name__ == '__main__':
     args = get_args()
-    a = pvh.PredVirusHost(args=args)
+    prediction = pvh.PredVirusHost(args=args)
+    prediction.check_files()

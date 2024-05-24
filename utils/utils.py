@@ -39,3 +39,4 @@ def assign_paths(args):
     user_folder = os. getcwd()
     user_output_folder = os.path.join(user_folder, args.output)
     return utils_folder, predvirushost_folder, user_folder, user_output_folder
+
