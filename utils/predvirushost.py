@@ -17,6 +17,7 @@ def get_args():
                     )
     parser.add_argument('-d', '--directory', required=True)
     parser.add_argument('-o', '--output', default='out')
+    parser.add_argument('-n', '--number', default=5)
     parser.add_argument('-f', '--format', required=True, choices=['RefSeq', 'GenBank', 'PROKKA', 'MGRAST'])
     parser.add_argument('-v', dest='verbose', action='store_true')
     args = parser.parse_args()
@@ -29,3 +30,4 @@ if __name__ == '__main__':
     prediction.check_files()
     prediction.load_protein_names()
     prediction.protein_count()
+    prediction.count_filter(number=args.number)
