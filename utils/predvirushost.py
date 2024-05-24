@@ -27,3 +27,5 @@ if __name__ == '__main__':
     args = get_args()
     prediction = pvh.PredVirusHost(args=args)
     prediction.check_files()
+    prediction.load_protein_names()
+    prediction.protein_count()

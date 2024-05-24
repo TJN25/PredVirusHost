@@ -31,6 +31,26 @@ class PredVirusHost:
         if exit_val:
             msg = "Exiting due to missing files.\n\n" + msg + "\nConsider running name-reformat.py or using the correct -d [DIRECTORY] path.\n"
             sys.exit(msg)
+    def load_protein_names(self):
+        with open(self.fh, 'r') as fh:
+            lines = fh.readlines()
+        self.proteins_dict = {}
+        for line in lines:
+            try:
+                value, key = line.strip().split(' ')
+                value = value[1:]
+            except ValueError:
+                continue
+            if not key in self.proteins_dict:
+                self.proteins_dict[key] = [value]
+            else:
+                self.proteins_dict[key].append(value)
+    
+    def protein_count(self):
+        for key, value in self.proteins_dict.items():
+            length = len(value)
+            self.proteins_dict[key] = [value, length]
+        log.info(self.proteins_dict)
 
 if __name__ == '__main__':
     sys.exit('Do not run PredVirusHostClass directly.')
