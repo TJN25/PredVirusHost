@@ -81,13 +81,81 @@ exit
   esac
 done
 
+if [[ $file_type = 'PROKKA' ]]; then
+
+      delim='_'
+      pos_start='0'
+      pos_end='1'
+
+
+echo 'PROKKA file type'
+
+elif [[ $file_type = 'MGRAST' ]]
+then
+
+      delim='_'
+      pos_start='0'
+      pos_end='3'
+
+echo 'MGRAST file type'
+
+elif [[ $file_type = 'Refseq' ]]
+then
+
+      delim='['
+      pos_start='1'
+      pos_end='0'
+
+echo 'Refseq file type. Make sure that spaces have been removed'
+
+
+elif [[ $file_type = 'Other' ]]
+then
+
+echo 'Other file type. Make sure delineator, start and end values are correct and all spaces have been removed.'
+
+if [[ -z $delim ]]; then
+echo 'Error: Delimiter separting the genome name is required. Specify with -d <delimiter>'
+echo ' '
+echo 'Use -h for more help.'
+echo ' '
+exit
+
+elif [[ -z $pos_start ]]; then
+echo 'Error: Start position of genome name required. Specify with -s <start position>'
+echo ' '
+echo 'Use -h for more help.'
+echo ' '
+exit
+
+elif [[ -z $pos_end ]]; then
+echo 'Error: Stop position of genome name required. Specify with -e <end position>'
+echo ' '
+echo 'Use -h for more help.'
+echo ' '
+exit
+
+fi
+
+else
+
+echo ' '
+echo 'Error: -f <file type> is required. Options are MGRAST, PROKKA, Refseq and Other. '
+echo 'If Other is selected the the delimiter, start and stop positions of the genome name '
+echo 'is also required.'
+echo ' '
+echo 'Use -h for more help.'
+echo ' '
+exit
+fi
+
 if [[ -z $file1_input ]]; then
 echo 'Error: Fasta File Needed. Specify with -i <input file>'
 echo ' '
 echo 'Use -h for more help.'
 echo ' '
 exit
-fi
+else
 
 if [[ -z $output_file ]]; then
 output_file=`basename $file1_input`
@@ -98,16 +166,103 @@ file1=$file1_input
 echo "Writing outputs to $output_file"
 mkdir ${output_file}.tmp.folder
 
-arVOG_hmm=$FILE_PATH/data/arVOG.hmm
-baPOG_hmm=$FILE_PATH/data/baPOG.hmm
-euVOG_hmm=$FILE_PATH/data/euVOG.hmm
+if [[ $pos_start -gt 0 ]]; then
+
+if [[ $pos_end -gt 0 ]]; then
+grep ">" $file1 | tr ' ' '_' | sed "s/\\$delim/ /$pos_start" | rev | sed "s/$delim/ /$pos_end" | rev | cut -d ' ' -f2 | sed 's/>//g' > tmp1
+
+else
+
+grep ">" $file1 | tr ' ' '_' | sed "s/\\$delim/ /$pos_start" | cut -d ' ' -f2 | sed 's/>//g' > tmp1
+
+fi
+
+else
+
+grep ">" $file1 | tr ' ' '_' | rev | sed "s/\\$delim/ /$pos_end" | rev | cut -d ' ' -f1 | sed 's/>//g' > tmp1
+
+fi
+
+
+grep ">" $file1 | tr ' ' '_' > tmp2
+
+paste -d ' ' tmp1 tmp2 | sed 's/>//g'  > $output_file.tmp.folder/genome_lookup.txt
+
+rm tmp1 tmp2
+
+cat $file1 | tr ' ' '_'  | tr '\n' ' ' | sed -e 's/>/\n>/g' | sed 's/ //g2' | sed '/^\s*$/d' > tmp1
+
+paste tmp1 $output_file.tmp.folder/genome_lookup.txt | tr ' ' '\t' > tmp1.faa
+
+cat tmp1.faa | tr ' ' '\t' | cut -f3 | uniq -c > tmp2
+
+join -1 3 -2 2 tmp1.faa tmp2 | tr ' ' '\t' > tmp3
+
+awk -v threshold="$PROTEINCOUNT" '$5 >= threshold' tmp3 > tmp4
+
+contig_count=$(awk -v threshold="$PROTEINCOUNT" '$1 >= threshold' tmp2 | wc -l)
+
+echo "$contig_count contigs with $PROTEINCOUNT or more proteins have been kept"
+
+cut -f2,3 tmp4 | tr '\t' '\n' > $output_file.tmp.folder/fastafile.faa
+
+rm tmp1 tmp2 tmp3 tmp1.faa tmp4
+
+
+
+arVOG_hmm=$FILE_PATH/arVOG.hmm
+baPOG_hmm=$FILE_PATH/baPOG.hmm
+euVOG_hmm=$FILE_PATH/euVOG.hmm
+
+
+
 
  echo 'Match '$file1' to HMM virus models'
  echo `basename $arVOG_hmm`
  echo 'Running HMMSearch on '$file1' and arVOG models'
 
- hmmsearch --tblout $output_file.tmp.folder/arVOG_res.txt --noali --cpu $CPUS $arVOG_hmm $file1_input >> $output_file.tmp.folder/hmm_output.txt
+
+
+ hmmsearch --tblout $output_file.tmp.folder/arVOG_res.txt --noali --cpu $CPUS $arVOG_hmm $output_file.tmp.folder/fastafile.faa >> $output_file.tmp.folder/hmm_output.txt
  echo 'Running HMMSearch on '$file1' and euVOG models'
- hmmsearch --tblout $output_file.tmp.folder/euVOG_res.txt --noali --cpu $CPUS  $euVOG_hmm $file1_input >> $output_file.tmp.folder/hmm_output.txt
+ hmmsearch --tblout $output_file.tmp.folder/euVOG_res.txt --noali --cpu $CPUS  $euVOG_hmm $output_file.tmp.folder/fastafile.faa >> $output_file.tmp.folder/hmm_output.txt
  echo 'Running HMMSearch on '$file1' and baPOG models'
- hmmsearch --tblout $output_file.tmp.folder/baPOG_res.txt --noali --cpu $CPUS $baPOG_hmm $file1_input >> $output_file.tmp.folder/hmm_output.txt
+ hmmsearch --tblout $output_file.tmp.folder/baPOG_res.txt --noali --cpu $CPUS $baPOG_hmm $output_file.tmp.folder/fastafile.faa >> $output_file.tmp.folder/hmm_output.txt
+ echo 'Making Protein List'
+
+
+
+
+
+# Calculates a score indicating which domain the genome likely belongs to
+host_scoring.R $FILE_PATH $output_file.tmp.folder
+
+
+cp $output_file.tmp.folder/scores.txt ./$output_file.scores.txt
+
+keep_files_=$keep_files
+
+fi
+
+# these steps are needed to rename the files and put them in a folder
+
+if [[ $keep_files_ = 'y' ]]; then
+
+echo 'Temp files being moved to temp folder'
+echo 'Finished'
+
+elif [[ $keep_files_ = 'n' ]]; then
+
+rm $output_file.tmp.folder/*
+
+rmdir $output_file.tmp.folder
+
+echo 'Temp files removed'
+
+echo 'Finished'
+
+else
+
+echo "Did not complete the commands: If you wish to debug then include 'y' in the command."
+
+fi
