@@ -1,6 +1,7 @@
 import sys
 import os
 import logging as log
+import subprocess
 # import pandas
 from utils import assign_paths, file_reformat, assign_separators
 
@@ -52,12 +53,21 @@ class PredVirusHost:
         for key, value in self.proteins_dict.items():
             length = len(value)
             self.proteins_dict[key] = [value, length]
+
     def count_filter(self, number: int) -> None:
         print(f'Number of proteins as a minimum is: {number}')
         if number == 1:
             return
-        f = open(f'{self.directory}/tmp1', 'w')
-        
+        f = open(f'{self.directory}/tmp1', 'a')
+        with open(self.ff, 'r') as ff:
+            for line in ff:
+                line = line.strip()
+                if len(line) > 0:
+                    if line[0] == ">":
+                        f.write(f'\n{line}\t')
+                    else:
+                        f.write(f'{line}')
+        f.close()
 
 
 if __name__ == '__main__':
