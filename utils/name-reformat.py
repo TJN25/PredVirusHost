@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 import os
 import argparse
-from pathlib import Path
 
-from utils import assign_paths, file_reformat, assign_separators
+from utils import assign_paths, file_reformat, assign_separators #type: ignore
 
 help_title= """
 Takes a protein FASTA file and reformats the header so that the protein name and\n
@@ -29,11 +28,7 @@ if __name__ == '__main__':
         os.mkdir(user_output_folder)
     except FileExistsError:
         pass
-    tmp_1 = open(f'{user_output_folder}/tmp1', 'w')
-    fasta_file = open(f'{user_output_folder}/fastafile.faa', 'w')
-    f = open(f'{user_output_folder}/fasta-headers.txt', 'w')
-    
-    file_reformat(separators, args, f, tmp_1, fasta_file, user_output_folder)
-    f.close()
-    tmp_1.close()
-    fasta_file.close()
+    input_file: str = os.path.join(user_folder, args.input)
+    fasta_file: str = os.path.join(user_output_folder, "fastafile.faa")
+    header_file: str = os.path.join(user_output_folder, "fasta-headers.txt")
+    file_reformat(separators, input_file, fasta_file, header_file)
