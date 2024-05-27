@@ -17,7 +17,7 @@ def file_reformat(separators, args, f, tmp_1, fasta_file,user_output_folder):
     subprocess.run(["sed", f's/{separators[2]}/ /{separators[0]}', os.path.join(user_output_folder, "tmp1")], stdout=fasta_file)
     subprocess.run(["grep", '>', os.path.join(user_output_folder, "fastafile.faa")], stdout=f)
 
-def assign_separators(format):
+def assign_separators(format: str) -> tuple[int, int, str]:
     match format.lower():
         case 'refseq':
             start_pos, end_pos, separator = 1, 0, "\["
@@ -32,11 +32,4 @@ def assign_separators(format):
         case _:
             sys.exit(f'File format: {format} not valid. Please provide a valid file format (RefSeq, Genbank, Prokka, MGRAST).')
     return start_pos, end_pos, separator
-
-def assign_paths(args):
-    utils_folder=Path(os.path.dirname(os.path.abspath(__file__)))
-    predvirushost_folder= utils_folder.parent.absolute()
-    user_folder = os. getcwd()
-    user_output_folder = os.path.join(user_folder, args.output)
-    return utils_folder, predvirushost_folder, user_folder, user_output_folder
 
