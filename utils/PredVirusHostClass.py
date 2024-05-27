@@ -1,12 +1,12 @@
 import sys
 import os
 import logging as log
-import subprocess
-# import pandas
-from utils import assign_paths, file_reformat, assign_separators
+import argparse
+from utils import assign_paths, assign_separators
+
 
 class PredVirusHost:
-    def __init__(self, args: list):
+    def __init__(self, args: argparse.Namespace) -> None:
         if args.verbose:
             log.basicConfig(format="%(message)s", level=log.DEBUG)
             log.info("Verbose flag used: printing output.")
@@ -15,7 +15,7 @@ class PredVirusHost:
         log.info(f'Initialising PredVirusHost for {args.directory}')
         self.utils_folder, self.predvirushost_folder, self.user_folder, self.user_output_folder = assign_paths(args)
         log.info(f'Output will be saved in {self.user_output_folder}.')
-        self.separators = assign_separators(args.format)
+        self.separators: tuple[int, int, str] = assign_separators(args.format)
         self.directory = os.path.join(self.user_folder, args.directory)
         self.ff = os.path.join(self.directory, "fastafile.faa") ##input fastafile.faa
         self.fh = os.path.join(self.directory, "fasta-headers.txt") ##input fasta-headers.txt
