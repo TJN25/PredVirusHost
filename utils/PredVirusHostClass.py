@@ -3,7 +3,7 @@ import os
 import logging as log
 import argparse
 from typing import Any
-from utils import assign_paths, assign_separators
+from utils import assign_paths, assign_separators #type: ignore
 
 class PredVirusHost:
     def __init__(self, args: argparse.Namespace) -> None:
