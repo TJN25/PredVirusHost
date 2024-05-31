@@ -22,7 +22,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('-c', '--cpu', default=5)
     parser.add_argument('-f', '--format', required=True,
                         choices=['RefSeq', 'GenBank', 'PROKKA', 'MGRAST'])
-    parser.add_argument('-v', dest='verbose', action='store_true')
+    parser.add_argument('-v', dest='verbose', action='count')
     args: argparse.Namespace = parser.parse_args()
     return (args)
 
@@ -30,8 +30,10 @@ def get_args() -> argparse.Namespace:
 if __name__ == '__main__':
     args: argparse.Namespace = get_args()
     prediction = pvh.PredVirusHost(args=args)
-    if not prediction.check_files():
-        prediction.process_fasta()
+    files_msg: str = prediction.check_files()
+    if files_msg != "":
+        sys.exit(files_msg)
+    prediction.process_fasta()
     #prediction.load_protein_names()
     #prediction.protein_count()
     #prediction.count_filter(number=args.number)

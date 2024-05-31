@@ -2,48 +2,38 @@ import os
 import mmap
 import multiprocessing
 import json
+import hashlib
+import logging
 from typing import Dict, List
 
 MMAP_PAGE_SIZE: int = os.sysconf("SC_PAGE_SIZE")
+logger = logging.getLogger(__name__)
 
-def process_line(line: bytes) -> tuple[int, str, str]:
+def process_line(line: bytes) -> tuple[int, bytes, bytes]:
     if line[:1] == b'\n' or line[:1] == b'\r': 
-        return 0, "\n", ""
+        return 0, b"\n", b""
     if line[:1] != b'>':
-        #ff.write(line.decode("UTF-8"))
-        return 1, line.decode("UTF-8"), ""
+        return 1, line, b""
     line = line.rstrip().replace(b' ', b'*')
-    #ff.write(line.decode("UTF-8"))
     protein: bytes
     protein = line
     words: list[bytes] = line.split(b"[")#]
     gl: list[bytes] = words[1:]
     genome: bytes
     genome = b''.join(gl)
-    #fh.write(f'{genome.decode("UTF-8")} {protein.decode("UTF-8")}\n')
-    return 2, protein.decode("UTF-8"), genome.decode("UTF-8")
+    return 2, protein, genome
 
 def align_offset(offset, page_size):
     return (offset // page_size) * page_size
 
 def process_chunk(file_path: str, start_byte, end_byte, file_counter: int, output: str, n_min: int) -> None:
-    ##TODO The remove functions are needed but will cause problems with pvh.check_files()
+    logger.debug(f'Processing chunk {file_counter} from byte <{start_byte}> to byte <{end_byte}>')
     offset = align_offset(start_byte, MMAP_PAGE_SIZE)
-    #try:
-    #    os.remove(os.path.join(output, f"fastafile_{file_counter}.faa"))
-    #except OSError:
-    #    pass
-    #try:
-    #    os.remove(os.path.join(output, f"fasta-headers_{file_counter}.txt"))
-    #except OSError:
-    #    pass
-    #ff = open(os.path.join(output, f"fastafile_{file_counter}.faa"), 'a')
-    #fh = open(os.path.join(output, f"fasta-headers_{file_counter}.txt"), 'a')
     fasta_file: str = os.path.join(output, f"fastafile_{file_counter}.faa")
     d: dict[str, List[List[str]]] = {}
     current_genome: str = ""
     short_proteins: List[str] = []
-    line_res: tuple[int, str, str]
+    line_res: tuple[int, bytes, bytes]
     with open(file_path, "r+b") as file:
         length = end_byte - offset
         with mmap.mmap(
@@ -59,16 +49,17 @@ def process_chunk(file_path: str, start_byte, end_byte, file_counter: int, outpu
     with open(os.path.join(output, f'short_proteins_{file_counter}.json'), 'w') as json_file:
         json.dump(short_proteins, json_file)
 
-def process_genome(d: Dict[str, List[List[str]]], seq: str, current_genome: str, line: tuple[int, str, str], n_min: int, fasta_file: str, short_proteins: List[str]) -> tuple[Dict[str, List[List[str]]], str, str, List[str]]:
+def process_genome(d: Dict[str, List[List[str]]], seq: str, current_genome: str, line: tuple[int, bytes, bytes], n_min: int, fasta_file: str, short_proteins: List[str]) -> tuple[Dict[str, List[List[str]]], str, str, List[str]]:
     line_type: int = line[0]
-    genome: str = line[2]
-    protein: str = line[1]
+    genome: str = line[2].decode('UTF-8')
+    protein: bytes = line[1]
     if line_type == 0:
         return d, seq, current_genome, short_proteins
     if line_type == 1:
-        seq += protein
+        seq += protein.decode('UTF-8')
         return d, seq, current_genome, short_proteins
     if line_type == 2:
+        hash_name: str = str(hashlib.md5(protein).hexdigest())
         if current_genome in d:
             genomes: List[List[str]] = d[current_genome]
             names: List[str] = genomes[0]
@@ -93,9 +84,9 @@ def process_genome(d: Dict[str, List[List[str]]], seq: str, current_genome: str,
         if genome in d:
             genome_list: List[List[str]] = d[genome]
             names = genome_list[0]
-            names.append(protein)
+            names.append(hash_name)
         else:
-            d[genome] = [[protein], [], ['false']]
+            d[genome] = [[hash_name], [], ['false']]
         seq = ""
     return d, seq, current_genome, short_proteins
 
