@@ -13,10 +13,14 @@ class PredVirusHost:
             log.info("Verbose flag used: printing output.")
         else:
             log.basicConfig(format="%(levelname)s: %(message)s")
-        log.info(f'Initialising PredVirusHost for {args.directory}')
+        log.info(f'Initialising PredVirusHost for {args.input}')
         self.format: str = args.format
+        self.n_min: int = int(args.number)
         self.separators: tuple[int, int, str] = assign_separators(self.format)
-        self.cpu_counter: int = min(args.cpu, os.cpu_count())
+        self.cpu_counter: int = int(args.cpu)
+        max_cpus: int | None = os.cpu_count()
+        if isinstance(max_cpus, int):
+            self.cpu_counter: int = min(self.cpu_counter, max_cpus)
         paths: tuple[str, str, str, str] = assign_paths(args)
         self.paths: dict[str, str] = {}
         self.paths['utils'] = paths[0]
@@ -31,6 +35,7 @@ class PredVirusHost:
         self.genomes: dict[str, tuple[list[str], int]] = {}
 
     def check_files(self) -> bool:
+        return False
         file_found: int = 0
         msg: str = ""
         if not os.path.exists(self.ff):
@@ -49,7 +54,7 @@ class PredVirusHost:
         return False
 
     def process_fasta(self) -> None:
-        process_fasta_file(self.input_file, self.directory, self.cpu_counter)
+        process_fasta_file(self.input_file, self.directory, self.cpu_counter, self.n_min)
 
     def load_protein_names(self) -> None:
         with open(self.fh, 'r') as fh:

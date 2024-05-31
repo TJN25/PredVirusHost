@@ -32,6 +32,6 @@ if __name__ == '__main__':
     prediction = pvh.PredVirusHost(args=args)
     if not prediction.check_files():
         prediction.process_fasta()
-    prediction.load_protein_names()
-    prediction.protein_count()
-    prediction.count_filter(number=args.number)
+    #prediction.load_protein_names()
+    #prediction.protein_count()
+    #prediction.count_filter(number=args.number)
