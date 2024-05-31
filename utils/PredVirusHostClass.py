@@ -3,7 +3,8 @@ import os
 import logging as log
 import argparse
 from typing import Any
-from utils import assign_paths, assign_separators #type: ignore
+from utils import assign_paths, assign_separators 
+from process_fasta_input import process_fasta_file
 
 class PredVirusHost:
     def __init__(self, args: argparse.Namespace) -> None:
@@ -13,33 +14,42 @@ class PredVirusHost:
         else:
             log.basicConfig(format="%(levelname)s: %(message)s")
         log.info(f'Initialising PredVirusHost for {args.directory}')
-        self.user_folder: str
-        self.utils_folder: str
-        self.predvirushost_folder: str
-        self.user_output_folder: str
-        self.utils_folder, self.predvirushost_folder, self.user_folder, self.user_output_folder = assign_paths(
-            args)
-        log.info(f'Output will be saved in {self.user_output_folder}.')
-        self.separators: tuple[int, int, str] = assign_separators(args.format)
-        self.directory: str = os.path.join(self.user_folder, args.directory)
-        # input fastafile.faa
+        self.format: str = args.format
+        self.separators: tuple[int, int, str] = assign_separators(self.format)
+        self.cpu_counter: int = min(args.cpu, os.cpu_count())
+        paths: tuple[str, str, str, str] = assign_paths(args)
+        self.paths: dict[str, str] = {}
+        self.paths['utils'] = paths[0]
+        self.paths['pvh'] = paths[1]
+        self.paths['user'] = paths[2]
+        self.paths['user_out'] = paths[3]
+        log.info(f'Output will be saved in {self.paths["user_out"]}.')
+        self.directory: str = self.paths["user_out"]
+        self.input_file: str = os.path.join(self.paths["user"], args.input)
         self.ff: str = os.path.join(self.directory, "fastafile.faa")
-        # input fasta-headers.txt
         self.fh: str = os.path.join(self.directory, "fasta-headers.txt")
+        self.genomes: dict[str, tuple[list[str], int]] = {}
 
-    def check_files(self) -> None:
-        exit_val: bool = False
+    def check_files(self) -> bool:
+        file_found: int = 0
         msg: str = ""
         if not os.path.exists(self.ff):
-            exit_val = True
+            file_found += 1 
             msg += f'- Fasta file: {self.ff}\n'
         if not os.path.exists(self.fh):
-            exit_val = True
+            file_found += 1 
             msg += f'- Fasta headers file: {self.fh}\n'
-        if exit_val:
-            msg = "Exiting due to missing files.\n\n" + msg + \
-                "\nConsider running name-reformat.py or using the correct -d [DIRECTORY] path.\n"
+        if file_found == 2:
+            msg = "Files found\n\n" + msg
+            print(msg)
+            return True
+        if file_found == 1:
+            msg = "Only one file found. Something might be wrong. Exiting...\n\n" + msg
             sys.exit(msg)
+        return False
+
+    def process_fasta(self) -> None:
+        process_fasta_file(self.input_file, self.directory, self.cpu_counter)
 
     def load_protein_names(self) -> None:
         with open(self.fh, 'r') as fh:

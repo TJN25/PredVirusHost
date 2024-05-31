@@ -8,7 +8,7 @@ def assign_paths(args):
     predvirushost_folder: Path = utils_folder.parent.absolute()
     user_folder: str = os.getcwd()
     user_output_folder: str = os.path.join(user_folder, args.output)
-    return utils_folder, predvirushost_folder, user_folder, user_output_folder
+    return str(utils_folder), str(predvirushost_folder), user_folder, user_output_folder
 
 
 def file_reformat(separators: tuple[int, int, str], input_file: str, fasta_file: str, header_file: str):

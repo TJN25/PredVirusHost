@@ -1,0 +1,2811 @@
+def process_line(line, ff, fh):
+    line :: bytes
+    ff, fh :: object
+    r0, r1 :: bytes
+    r2 :: i32
+    r3, r4 :: bit
+    r5, r6 :: bytes
+    r7 :: i32
+    r8, r9 :: bit
+    r10, r11 :: str
+    r12 :: tuple[int, str, str]
+    r13, r14 :: bytes
+    r15 :: i32
+    r16, r17 :: bit
+    r18, r19, r20 :: str
+    r21 :: object[2]
+    r22 :: object_ptr
+    r23 :: object
+    r24, r25, r26 :: str
+    r27 :: tuple[int, str, str]
+    r28 :: str
+    r29 :: object[1]
+    r30 :: object_ptr
+    r31 :: object
+    r32, r33, r34 :: bytes
+    r35 :: str
+    r36 :: object[3]
+    r37 :: object_ptr
+    r38 :: object
+    r39 :: bytes
+    r40, r41, r42 :: str
+    r43 :: object[2]
+    r44 :: object_ptr
+    r45 :: object
+    protein, r46 :: bytes
+    r47 :: str
+    r48 :: object[2]
+    r49 :: object_ptr
+    r50 :: object
+    r51 :: list
+    r52 :: object
+    r53 :: list
+    r54, r55 :: bytes
+    r56, r57, r58, r59, r60, r61, r62, r63 :: str
+    r64 :: object[2]
+    r65 :: object_ptr
+    r66 :: object
+    r67, r68, r69, r70 :: str
+    r71, r72 :: tuple[int, str, str]
+L0:
+    r0 = CPyBytes_GetSlice(line, 0, 2)
+    if is_error(r0) goto L32 (error at process_line:12) else goto L1
+L1:
+    r1 = b'\n'
+    r2 = CPyBytes_Compare(r0, r1)
+    dec_ref r0
+    r3 = r2 >= 0 :: signed
+    if not r3 goto L32 (error at process_line:12) else goto L2 :: bool
+L2:
+    r4 = r2 == 1
+    if r4 goto L6 else goto L3 :: bool
+L3:
+    r5 = CPyBytes_GetSlice(line, 0, 2)
+    if is_error(r5) goto L32 (error at process_line:12) else goto L4
+L4:
+    r6 = b'\r'
+    r7 = CPyBytes_Compare(r5, r6)
+    dec_ref r5
+    r8 = r7 >= 0 :: signed
+    if not r8 goto L32 (error at process_line:12) else goto L5 :: bool
+L5:
+    r9 = r7 == 1
+    if r9 goto L6 else goto L7 :: bool
+L6:
+    r10 = '\n'
+    r11 = ''
+    inc_ref r10
+    inc_ref r11
+    r12 = (0, r10, r11)
+    return r12
+L7:
+    r13 = CPyBytes_GetSlice(line, 0, 2)
+    if is_error(r13) goto L32 (error at process_line:14) else goto L8
+L8:
+    r14 = b'>'
+    r15 = CPyBytes_Compare(r13, r14)
+    dec_ref r13
+    r16 = r15 >= 0 :: signed
+    if not r16 goto L32 (error at process_line:14) else goto L9 :: bool
+L9:
+    r17 = r15 != 1
+    if r17 goto L10 else goto L14 :: bool
+L10:
+    r18 = 'UTF-8'
+    r19 = CPy_Decode(line, r18, 0)
+    if is_error(r19) goto L32 (error at process_line:15) else goto L11
+L11:
+    r20 = 'write'
+    r21 = [ff, r19]
+    r22 = load_address r21
+    r23 = PyObject_VectorcallMethod(r20, r22, 9223372036854775810, 0)
+    if is_error(r23) goto L33 (error at process_line:15) else goto L34
+L12:
+    dec_ref r19
+    r24 = 'UTF-8'
+    r25 = CPy_Decode(line, r24, 0)
+    if is_error(r25) goto L32 (error at process_line:16) else goto L13
+L13:
+    r26 = ''
+    inc_ref r26
+    r27 = (2, r25, r26)
+    return r27
+L14:
+    r28 = 'rstrip'
+    r29 = [line]
+    r30 = load_address r29
+    r31 = PyObject_VectorcallMethod(r28, r30, 9223372036854775809, 0)
+    if is_error(r31) goto L32 (error at process_line:17) else goto L15
+L15:
+    r32 = cast(bytes, r31)
+    if is_error(r32) goto L32 (error at process_line:17) else goto L16
+L16:
+    r33 = b' '
+    r34 = b'*'
+    r35 = 'replace'
+    r36 = [r32, r33, r34]
+    r37 = load_address r36
+    r38 = PyObject_VectorcallMethod(r35, r37, 9223372036854775811, 0)
+    if is_error(r38) goto L35 (error at process_line:17) else goto L17
+L17:
+    dec_ref r32
+    r39 = cast(bytes, r38)
+    if is_error(r39) goto L32 (error at process_line:17) else goto L18
+L18:
+    line = r39
+    r40 = 'UTF-8'
+    r41 = CPy_Decode(line, r40, 0)
+    if is_error(r41) goto L36 (error at process_line:18) else goto L19
+L19:
+    r42 = 'write'
+    r43 = [ff, r41]
+    r44 = load_address r43
+    r45 = PyObject_VectorcallMethod(r42, r44, 9223372036854775810, 0)
+    if is_error(r45) goto L37 (error at process_line:18) else goto L38
+L20:
+    dec_ref r41
+    inc_ref line
+    protein = line
+    r46 = b'['
+    r47 = 'split'
+    r48 = [line, r46]
+    r49 = load_address r48
+    r50 = PyObject_VectorcallMethod(r47, r49, 9223372036854775810, 0)
+    if is_error(r50) goto L39 (error at process_line:21) else goto L21
+L21:
+    dec_ref line
+    r51 = cast(list, r50)
+    if is_error(r51) goto L40 (error at process_line:21) else goto L22
+L22:
+    r52 = CPyList_GetSlice(r51, 2, 9223372036854775806)
+    dec_ref r51
+    if is_error(r52) goto L40 (error at process_line:22) else goto L23
+L23:
+    r53 = cast(list, r52)
+    if is_error(r53) goto L40 (error at process_line:22) else goto L24
+L24:
+    r54 = b''
+    r55 = CPyBytes_Join(r54, r53)
+    dec_ref r53
+    if is_error(r55) goto L40 (error at process_line:24) else goto L25
+L25:
+    r56 = 'UTF-8'
+    r57 = CPy_Decode(r55, r56, 0)
+    if is_error(r57) goto L41 (error at process_line:25) else goto L26
+L26:
+    r58 = ' '
+    r59 = 'UTF-8'
+    r60 = CPy_Decode(protein, r59, 0)
+    if is_error(r60) goto L42 (error at process_line:25) else goto L27
+L27:
+    r61 = '\n'
+    r62 = CPyStr_Build(4, r57, r58, r60, r61)
+    dec_ref r57
+    dec_ref r60
+    if is_error(r62) goto L41 (error at process_line:25) else goto L28
+L28:
+    r63 = 'write'
+    r64 = [fh, r62]
+    r65 = load_address r64
+    r66 = PyObject_VectorcallMethod(r63, r65, 9223372036854775810, 0)
+    if is_error(r66) goto L43 (error at process_line:25) else goto L44
+L29:
+    dec_ref r62
+    r67 = 'UTF-8'
+    r68 = CPy_Decode(protein, r67, 0)
+    dec_ref protein
+    if is_error(r68) goto L45 (error at process_line:26) else goto L30
+L30:
+    r69 = 'UTF-8'
+    r70 = CPy_Decode(r55, r69, 0)
+    dec_ref r55
+    if is_error(r70) goto L46 (error at process_line:26) else goto L31
+L31:
+    r71 = (4, r68, r70)
+    return r71
+L32:
+    r72 = <error> :: tuple[int, str, str]
+    return r72
+L33:
+    dec_ref r19
+    goto L32
+L34:
+    dec_ref r23
+    goto L12
+L35:
+    dec_ref r32
+    goto L32
+L36:
+    dec_ref line
+    goto L32
+L37:
+    dec_ref line
+    dec_ref r41
+    goto L32
+L38:
+    dec_ref r45
+    goto L20
+L39:
+    dec_ref line
+    dec_ref protein
+    goto L32
+L40:
+    dec_ref protein
+    goto L32
+L41:
+    dec_ref protein
+    dec_ref r55
+    goto L32
+L42:
+    dec_ref protein
+    dec_ref r55
+    dec_ref r57
+    goto L32
+L43:
+    dec_ref protein
+    dec_ref r55
+    dec_ref r62
+    goto L32
+L44:
+    dec_ref r66
+    goto L29
+L45:
+    dec_ref r55
+    goto L32
+L46:
+    dec_ref r68
+    goto L32
+
+def align_offset(offset, page_size):
+    offset, page_size, r0, r1, r2 :: object
+L0:
+    r0 = PyNumber_FloorDivide(offset, page_size)
+    if is_error(r0) goto L3 (error at align_offset:29) else goto L1
+L1:
+    r1 = PyNumber_Multiply(r0, page_size)
+    dec_ref r0
+    if is_error(r1) goto L3 (error at align_offset:29) else goto L2
+L2:
+    return r1
+L3:
+    r2 = <error> :: object
+    return r2
+
+def process_chunk(file_path, start_byte, end_byte, file_counter, output):
+    file_path :: str
+    start_byte, end_byte :: object
+    file_counter :: int
+    output :: str
+    r0 :: dict
+    r1 :: str
+    r2 :: object
+    r3 :: int
+    r4, r5 :: object
+    r6, r7, r8, r9 :: str
+    r10 :: object
+    r11 :: str
+    r12 :: object
+    r13 :: str
+    r14 :: object
+    r15 :: object[2]
+    r16 :: object_ptr
+    r17 :: object
+    r18 :: str
+    r19 :: object
+    r20 :: str
+    r21 :: object
+    r22 :: object[1]
+    r23 :: object_ptr
+    r24 :: object
+    r25 :: tuple[object, object, object]
+    r26 :: object
+    r27 :: str
+    r28 :: object
+    r29, r30 :: bit
+    r31, r32, r33, r34 :: str
+    r35 :: object
+    r36 :: str
+    r37 :: object
+    r38 :: str
+    r39 :: object
+    r40 :: object[2]
+    r41 :: object_ptr
+    r42 :: object
+    r43 :: str
+    r44 :: object
+    r45 :: str
+    r46 :: object
+    r47 :: object[1]
+    r48 :: object_ptr
+    r49 :: object
+    r50 :: tuple[object, object, object]
+    r51 :: object
+    r52 :: str
+    r53 :: object
+    r54, r55 :: bit
+    r56, r57, r58, r59 :: str
+    r60 :: object
+    r61 :: str
+    r62 :: object
+    r63 :: str
+    r64 :: object
+    r65 :: object[2]
+    r66 :: object_ptr
+    r67 :: object
+    r68, r69 :: str
+    r70 :: object
+    r71 :: str
+    r72 :: object
+    r73 :: object[2]
+    r74 :: object_ptr
+    r75 :: object
+    r76, r77, r78, r79 :: str
+    r80 :: object
+    r81 :: str
+    r82 :: object
+    r83 :: str
+    r84 :: object
+    r85 :: object[2]
+    r86 :: object_ptr
+    r87 :: object
+    r88, r89 :: str
+    r90 :: object
+    r91 :: str
+    r92 :: object
+    r93 :: object[2]
+    r94 :: object_ptr
+    r95 :: object
+    r96, d :: dict
+    r97 :: str
+    r98 :: object
+    r99 :: str
+    r100 :: object
+    r101 :: object[2]
+    r102 :: object_ptr
+    r103, r104 :: object
+    r105 :: str
+    r106 :: object
+    r107 :: str
+    r108 :: object
+    r109 :: object[1]
+    r110 :: object_ptr
+    r111 :: object
+    r112 :: bool
+    r113 :: object
+    r114 :: str
+    r115 :: object[1]
+    r116 :: object_ptr
+    r117 :: object
+    r118 :: int
+    r119 :: object
+    r120 :: str
+    r121 :: object
+    r122 :: int
+    r123 :: object
+    r124 :: str
+    r125, r126, r127 :: object
+    r128 :: object[4]
+    r129 :: object_ptr
+    r130, r131, r132 :: object
+    r133 :: str
+    r134 :: object
+    r135 :: str
+    r136 :: object
+    r137 :: object[1]
+    r138 :: object_ptr
+    r139 :: object
+    r140 :: bool
+    r141 :: object
+    r142 :: str
+    r143 :: object[2]
+    r144 :: object_ptr
+    r145 :: object
+    r146, current_seq, r147 :: str
+    r148 :: object
+    r149 :: bytes
+    r150 :: object
+    r151 :: str
+    r152 :: object
+    r153 :: object[2]
+    r154 :: object_ptr
+    r155, r156, r157 :: object
+    r158 :: bytes
+    r159 :: tuple[int, str, str]
+    r160 :: tuple[dict, str]
+    r161, r162 :: dict
+    r163, r164 :: str
+    r165 :: bit
+    r166, r167 :: tuple[object, object, object]
+    r168, r169, r170 :: object
+    r171 :: object[4]
+    r172 :: object_ptr
+    r173 :: object
+    r174 :: i32
+    r175 :: bit
+    r176 :: bool
+    r177 :: bit
+    r178, r179, r180 :: tuple[object, object, object]
+    r181 :: object
+    r182 :: object[4]
+    r183 :: object_ptr
+    r184 :: object
+    r185 :: bit
+    r186, r187 :: tuple[object, object, object]
+    r188, r189, r190 :: object
+    r191 :: object[4]
+    r192 :: object_ptr
+    r193 :: object
+    r194 :: i32
+    r195 :: bit
+    r196 :: bool
+    r197 :: bit
+    r198, r199, r200 :: tuple[object, object, object]
+    r201 :: object
+    r202 :: object[4]
+    r203 :: object_ptr
+    r204 :: object
+    r205 :: bit
+    r206 :: None
+L0:
+    r0 = process_fasta_input.globals :: static
+    r1 = 'MMAP_PAGE_SIZE'
+    r2 = CPyDict_GetItem(r0, r1)
+    if is_error(r2) goto L123 (error at process_chunk:33) else goto L1
+L1:
+    r3 = unbox(int, r2)
+    dec_ref r2
+    if is_error(r3) goto L123 (error at process_chunk:33) else goto L2
+L2:
+    r4 = box(int, r3)
+    r5 = align_offset(start_byte, r4)
+    dec_ref r4
+    if is_error(r5) goto L123 (error at process_chunk:33) else goto L3
+L3:
+L4:
+    r6 = 'fastafile_'
+    r7 = CPyTagged_Str(file_counter)
+    if is_error(r7) goto L13 (error at process_chunk:35) else goto L5
+L5:
+    r8 = '.faa'
+    r9 = CPyStr_Build(3, r6, r7, r8)
+    dec_ref r7
+    if is_error(r9) goto L13 (error at process_chunk:35) else goto L6
+L6:
+    r10 = os :: module
+    r11 = 'path'
+    r12 = CPyObject_GetAttr(r10, r11)
+    if is_error(r12) goto L124 (error at process_chunk:35) else goto L7
+L7:
+    r13 = 'join'
+    r14 = CPyObject_GetAttr(r12, r13)
+    dec_ref r12
+    if is_error(r14) goto L124 (error at process_chunk:35) else goto L8
+L8:
+    r15 = [output, r9]
+    r16 = load_address r15
+    r17 = _PyObject_Vectorcall(r14, r16, 2, 0)
+    dec_ref r14
+    if is_error(r17) goto L124 (error at process_chunk:35) else goto L9
+L9:
+    dec_ref r9
+    r18 = cast(str, r17)
+    if is_error(r18) goto L13 (error at process_chunk:35) else goto L10
+L10:
+    r19 = os :: module
+    r20 = 'remove'
+    r21 = CPyObject_GetAttr(r19, r20)
+    if is_error(r21) goto L125 (error at process_chunk:35) else goto L11
+L11:
+    r22 = [r18]
+    r23 = load_address r22
+    r24 = _PyObject_Vectorcall(r21, r23, 1, 0)
+    dec_ref r21
+    if is_error(r24) goto L125 (error at process_chunk:35) else goto L126
+L12:
+    dec_ref r18
+    goto L20
+L13:
+    r25 = CPy_CatchError()
+    r26 = builtins :: module
+    r27 = 'OSError'
+    r28 = CPyObject_GetAttr(r26, r27)
+    if is_error(r28) goto L127 (error at process_chunk:36) else goto L14
+L14:
+    r29 = CPy_ExceptionMatches(r28)
+    dec_ref r28
+    if r29 goto L17 else goto L128 :: bool
+L15:
+    CPy_Reraise()
+    if not 0 goto L18 else goto L129 :: bool
+L16:
+    unreachable
+L17:
+    CPy_RestoreExcInfo(r25)
+    dec_ref r25
+    goto L20
+L18:
+    CPy_RestoreExcInfo(r25)
+    dec_ref r25
+    r30 = CPy_KeepPropagating()
+    if not r30 goto L123 else goto L19 :: bool
+L19:
+    unreachable
+L20:
+    r31 = 'fasta-headers_'
+    r32 = CPyTagged_Str(file_counter)
+    if is_error(r32) goto L29 (error at process_chunk:39) else goto L21
+L21:
+    r33 = '.txt'
+    r34 = CPyStr_Build(3, r31, r32, r33)
+    dec_ref r32
+    if is_error(r34) goto L29 (error at process_chunk:39) else goto L22
+L22:
+    r35 = os :: module
+    r36 = 'path'
+    r37 = CPyObject_GetAttr(r35, r36)
+    if is_error(r37) goto L130 (error at process_chunk:39) else goto L23
+L23:
+    r38 = 'join'
+    r39 = CPyObject_GetAttr(r37, r38)
+    dec_ref r37
+    if is_error(r39) goto L130 (error at process_chunk:39) else goto L24
+L24:
+    r40 = [output, r34]
+    r41 = load_address r40
+    r42 = _PyObject_Vectorcall(r39, r41, 2, 0)
+    dec_ref r39
+    if is_error(r42) goto L130 (error at process_chunk:39) else goto L25
+L25:
+    dec_ref r34
+    r43 = cast(str, r42)
+    if is_error(r43) goto L29 (error at process_chunk:39) else goto L26
+L26:
+    r44 = os :: module
+    r45 = 'remove'
+    r46 = CPyObject_GetAttr(r44, r45)
+    if is_error(r46) goto L131 (error at process_chunk:39) else goto L27
+L27:
+    r47 = [r43]
+    r48 = load_address r47
+    r49 = _PyObject_Vectorcall(r46, r48, 1, 0)
+    dec_ref r46
+    if is_error(r49) goto L131 (error at process_chunk:39) else goto L132
+L28:
+    dec_ref r43
+    goto L36
+L29:
+    r50 = CPy_CatchError()
+    r51 = builtins :: module
+    r52 = 'OSError'
+    r53 = CPyObject_GetAttr(r51, r52)
+    if is_error(r53) goto L133 (error at process_chunk:40) else goto L30
+L30:
+    r54 = CPy_ExceptionMatches(r53)
+    dec_ref r53
+    if r54 goto L33 else goto L134 :: bool
+L31:
+    CPy_Reraise()
+    if not 0 goto L34 else goto L135 :: bool
+L32:
+    unreachable
+L33:
+    CPy_RestoreExcInfo(r50)
+    dec_ref r50
+    goto L36
+L34:
+    CPy_RestoreExcInfo(r50)
+    dec_ref r50
+    r55 = CPy_KeepPropagating()
+    if not r55 goto L123 else goto L35 :: bool
+L35:
+    unreachable
+L36:
+    r56 = 'fastafile_'
+    r57 = CPyTagged_Str(file_counter)
+    if is_error(r57) goto L136 (error at process_chunk:42) else goto L37
+L37:
+    r58 = '.faa'
+    r59 = CPyStr_Build(3, r56, r57, r58)
+    dec_ref r57
+    if is_error(r59) goto L136 (error at process_chunk:42) else goto L38
+L38:
+    r60 = os :: module
+    r61 = 'path'
+    r62 = CPyObject_GetAttr(r60, r61)
+    if is_error(r62) goto L137 (error at process_chunk:42) else goto L39
+L39:
+    r63 = 'join'
+    r64 = CPyObject_GetAttr(r62, r63)
+    dec_ref r62
+    if is_error(r64) goto L137 (error at process_chunk:42) else goto L40
+L40:
+    r65 = [output, r59]
+    r66 = load_address r65
+    r67 = _PyObject_Vectorcall(r64, r66, 2, 0)
+    dec_ref r64
+    if is_error(r67) goto L137 (error at process_chunk:42) else goto L41
+L41:
+    dec_ref r59
+    r68 = cast(str, r67)
+    if is_error(r68) goto L136 (error at process_chunk:42) else goto L42
+L42:
+    r69 = 'a'
+    r70 = builtins :: module
+    r71 = 'open'
+    r72 = CPyObject_GetAttr(r70, r71)
+    if is_error(r72) goto L138 (error at process_chunk:42) else goto L43
+L43:
+    r73 = [r68, r69]
+    r74 = load_address r73
+    r75 = _PyObject_Vectorcall(r72, r74, 2, 0)
+    dec_ref r72
+    if is_error(r75) goto L138 (error at process_chunk:42) else goto L44
+L44:
+    dec_ref r68
+    r76 = 'fasta-headers_'
+    r77 = CPyTagged_Str(file_counter)
+    if is_error(r77) goto L139 (error at process_chunk:43) else goto L45
+L45:
+    r78 = '.txt'
+    r79 = CPyStr_Build(3, r76, r77, r78)
+    dec_ref r77
+    if is_error(r79) goto L139 (error at process_chunk:43) else goto L46
+L46:
+    r80 = os :: module
+    r81 = 'path'
+    r82 = CPyObject_GetAttr(r80, r81)
+    if is_error(r82) goto L140 (error at process_chunk:43) else goto L47
+L47:
+    r83 = 'join'
+    r84 = CPyObject_GetAttr(r82, r83)
+    dec_ref r82
+    if is_error(r84) goto L140 (error at process_chunk:43) else goto L48
+L48:
+    r85 = [output, r79]
+    r86 = load_address r85
+    r87 = _PyObject_Vectorcall(r84, r86, 2, 0)
+    dec_ref r84
+    if is_error(r87) goto L140 (error at process_chunk:43) else goto L49
+L49:
+    dec_ref r79
+    r88 = cast(str, r87)
+    if is_error(r88) goto L139 (error at process_chunk:43) else goto L50
+L50:
+    r89 = 'a'
+    r90 = builtins :: module
+    r91 = 'open'
+    r92 = CPyObject_GetAttr(r90, r91)
+    if is_error(r92) goto L141 (error at process_chunk:43) else goto L51
+L51:
+    r93 = [r88, r89]
+    r94 = load_address r93
+    r95 = _PyObject_Vectorcall(r92, r94, 2, 0)
+    dec_ref r92
+    if is_error(r95) goto L141 (error at process_chunk:43) else goto L52
+L52:
+    dec_ref r88
+    r96 = PyDict_New()
+    if is_error(r96) goto L142 (error at process_chunk:44) else goto L53
+L53:
+    d = r96
+    r97 = 'r+b'
+    r98 = builtins :: module
+    r99 = 'open'
+    r100 = CPyObject_GetAttr(r98, r99)
+    if is_error(r100) goto L143 (error at process_chunk:46) else goto L54
+L54:
+    r101 = [file_path, r97]
+    r102 = load_address r101
+    r103 = _PyObject_Vectorcall(r100, r102, 2, 0)
+    dec_ref r100
+    if is_error(r103) goto L143 (error at process_chunk:46) else goto L55
+L55:
+    r104 = PyObject_Type(r103)
+    r105 = '__exit__'
+    r106 = CPyObject_GetAttr(r104, r105)
+    if is_error(r106) goto L144 (error at process_chunk:46) else goto L56
+L56:
+    r107 = '__enter__'
+    r108 = CPyObject_GetAttr(r104, r107)
+    dec_ref r104
+    if is_error(r108) goto L145 (error at process_chunk:46) else goto L57
+L57:
+    r109 = [r103]
+    r110 = load_address r109
+    r111 = _PyObject_Vectorcall(r108, r110, 1, 0)
+    dec_ref r108
+    if is_error(r111) goto L145 (error at process_chunk:46) else goto L58
+L58:
+    r112 = 1
+L59:
+    r113 = PyNumber_Subtract(end_byte, r5)
+    if is_error(r113) goto L146 (error at process_chunk:47) else goto L60
+L60:
+    r114 = 'fileno'
+    r115 = [r111]
+    r116 = load_address r115
+    r117 = PyObject_VectorcallMethod(r114, r116, 9223372036854775809, 0)
+    if is_error(r117) goto L147 (error at process_chunk:49) else goto L61
+L61:
+    dec_ref r111
+    r118 = unbox(int, r117)
+    dec_ref r117
+    if is_error(r118) goto L148 (error at process_chunk:49) else goto L62
+L62:
+    r119 = mmap :: module
+    r120 = 'ACCESS_READ'
+    r121 = CPyObject_GetAttr(r119, r120)
+    if is_error(r121) goto L149 (error at process_chunk:49) else goto L63
+L63:
+    r122 = unbox(int, r121)
+    dec_ref r121
+    if is_error(r122) goto L149 (error at process_chunk:49) else goto L64
+L64:
+    r123 = mmap :: module
+    r124 = 'mmap'
+    r125 = CPyObject_GetAttr(r123, r124)
+    if is_error(r125) goto L150 (error at process_chunk:48) else goto L65
+L65:
+    r126 = box(int, r118)
+    r127 = box(int, r122)
+    r128 = [r126, r113, r127, r5]
+    r129 = load_address r128
+    r130 = ('access', 'offset')
+    r131 = _PyObject_Vectorcall(r125, r129, 2, r130)
+    dec_ref r125
+    if is_error(r131) goto L151 (error at process_chunk:48) else goto L66
+L66:
+    dec_ref r126
+    dec_ref r113
+    dec_ref r127
+    r132 = PyObject_Type(r131)
+    r133 = '__exit__'
+    r134 = CPyObject_GetAttr(r132, r133)
+    if is_error(r134) goto L152 (error at process_chunk:48) else goto L67
+L67:
+    r135 = '__enter__'
+    r136 = CPyObject_GetAttr(r132, r135)
+    dec_ref r132
+    if is_error(r136) goto L153 (error at process_chunk:48) else goto L68
+L68:
+    r137 = [r131]
+    r138 = load_address r137
+    r139 = _PyObject_Vectorcall(r136, r138, 1, 0)
+    dec_ref r136
+    if is_error(r139) goto L153 (error at process_chunk:48) else goto L69
+L69:
+    r140 = 1
+L70:
+    r141 = PyNumber_Subtract(start_byte, r5)
+    dec_ref r5
+    if is_error(r141) goto L154 (error at process_chunk:51) else goto L71
+L71:
+    r142 = 'seek'
+    r143 = [r139, r141]
+    r144 = load_address r143
+    r145 = PyObject_VectorcallMethod(r142, r144, 9223372036854775810, 0)
+    if is_error(r145) goto L155 (error at process_chunk:51) else goto L156
+L72:
+    dec_ref r141
+    r146 = ''
+    inc_ref r146
+    current_seq = r146
+    r147 = 'readline'
+    r148 = CPyObject_GetAttr(r139, r147)
+    dec_ref r139
+    if is_error(r148) goto L157 (error at process_chunk:53) else goto L73
+L73:
+    r149 = b''
+    r150 = builtins :: module
+    r151 = 'iter'
+    r152 = CPyObject_GetAttr(r150, r151)
+    if is_error(r152) goto L158 (error at process_chunk:53) else goto L74
+L74:
+    r153 = [r148, r149]
+    r154 = load_address r153
+    r155 = _PyObject_Vectorcall(r152, r154, 2, 0)
+    dec_ref r152
+    if is_error(r155) goto L158 (error at process_chunk:53) else goto L75
+L75:
+    dec_ref r148
+    r156 = PyObject_GetIter(r155)
+    dec_ref r155
+    if is_error(r156) goto L157 (error at process_chunk:53) else goto L76
+L76:
+    r157 = PyIter_Next(r156)
+    if is_error(r157) goto L159 else goto L77
+L77:
+    r158 = cast(bytes, r157)
+    if is_error(r158) goto L160 (error at process_chunk:53) else goto L78
+L78:
+    r159 = process_line(r158, r75, r95)
+    dec_ref r158
+    if is_error(r159) goto L160 (error at process_chunk:54) else goto L79
+L79:
+    r160 = process_genome(d, current_seq, r159)
+    dec_ref d
+    dec_ref current_seq
+    dec_ref r159
+    if is_error(r160) goto L161 (error at process_chunk:55) else goto L80
+L80:
+    r161 = borrow r160[0]
+    r162 = unborrow r161
+    d = r162
+    r163 = borrow r160[1]
+    r164 = unborrow r163
+    current_seq = r164
+    goto L76
+L81:
+    r165 = CPy_NoErrOccured()
+    if not r165 goto L82 (error at process_chunk:53) else goto L90 :: bool
+L82:
+    r166 = CPy_CatchError()
+    r140 = 0
+    r167 = CPy_GetExcInfo()
+    r168 = r167[0]
+    r169 = r167[1]
+    r170 = r167[2]
+    dec_ref r167
+    r171 = [r131, r168, r169, r170]
+    r172 = load_address r171
+    r173 = _PyObject_Vectorcall(r134, r172, 4, 0)
+    if is_error(r173) goto L162 (error at process_chunk:48) else goto L83
+L83:
+    dec_ref r168
+    dec_ref r169
+    dec_ref r170
+    r174 = PyObject_IsTrue(r173)
+    dec_ref r173
+    r175 = r174 >= 0 :: signed
+    if not r175 goto L88 (error at process_chunk:48) else goto L84 :: bool
+L84:
+    r176 = truncate r174: i32 to builtins.bool
+    if r176 goto L87 else goto L85 :: bool
+L85:
+    CPy_Reraise()
+    if not 0 goto L88 else goto L163 :: bool
+L86:
+    unreachable
+L87:
+    CPy_RestoreExcInfo(r166)
+    dec_ref r166
+    goto L90
+L88:
+    CPy_RestoreExcInfo(r166)
+    dec_ref r166
+    r177 = CPy_KeepPropagating()
+    if not r177 goto L91 else goto L164 :: bool
+L89:
+    unreachable
+L90:
+    r178 = <error> :: tuple[object, object, object]
+    r179 = r178
+    goto L92
+L91:
+    r180 = CPy_CatchError()
+    r179 = r180
+L92:
+    if r140 goto L93 else goto L165 :: bool
+L93:
+    r181 = load_address _Py_NoneStruct
+    r182 = [r131, r181, r181, r181]
+    r183 = load_address r182
+    r184 = _PyObject_Vectorcall(r134, r183, 4, 0)
+    dec_ref r134
+    if is_error(r184) goto L166 (error at process_chunk:48) else goto L167
+L94:
+    dec_ref r131
+L95:
+    if is_error(r179) goto L110 else goto L96
+L96:
+    CPy_Reraise()
+    if not 0 goto L98 else goto L168 :: bool
+L97:
+    unreachable
+L98:
+    if is_error(r179) goto L100 else goto L99
+L99:
+    CPy_RestoreExcInfo(r179)
+    xdec_ref r179
+L100:
+    r185 = CPy_KeepPropagating()
+    if not r185 goto L102 else goto L169 :: bool
+L101:
+    unreachable
+L102:
+    r186 = CPy_CatchError()
+    r112 = 0
+    r187 = CPy_GetExcInfo()
+    r188 = r187[0]
+    r189 = r187[1]
+    r190 = r187[2]
+    dec_ref r187
+    r191 = [r103, r188, r189, r190]
+    r192 = load_address r191
+    r193 = _PyObject_Vectorcall(r106, r192, 4, 0)
+    if is_error(r193) goto L170 (error at process_chunk:46) else goto L103
+L103:
+    dec_ref r188
+    dec_ref r189
+    dec_ref r190
+    r194 = PyObject_IsTrue(r193)
+    dec_ref r193
+    r195 = r194 >= 0 :: signed
+    if not r195 goto L108 (error at process_chunk:46) else goto L104 :: bool
+L104:
+    r196 = truncate r194: i32 to builtins.bool
+    if r196 goto L107 else goto L105 :: bool
+L105:
+    CPy_Reraise()
+    if not 0 goto L108 else goto L171 :: bool
+L106:
+    unreachable
+L107:
+    CPy_RestoreExcInfo(r186)
+    dec_ref r186
+    goto L110
+L108:
+    CPy_RestoreExcInfo(r186)
+    dec_ref r186
+    r197 = CPy_KeepPropagating()
+    if not r197 goto L111 else goto L172 :: bool
+L109:
+    unreachable
+L110:
+    r198 = <error> :: tuple[object, object, object]
+    r199 = r198
+    goto L112
+L111:
+    r200 = CPy_CatchError()
+    r199 = r200
+L112:
+    if r112 goto L113 else goto L173 :: bool
+L113:
+    r201 = load_address _Py_NoneStruct
+    r202 = [r103, r201, r201, r201]
+    r203 = load_address r202
+    r204 = _PyObject_Vectorcall(r106, r203, 4, 0)
+    dec_ref r106
+    if is_error(r204) goto L174 (error at process_chunk:46) else goto L175
+L114:
+    dec_ref r103
+L115:
+    if is_error(r199) goto L122 else goto L116
+L116:
+    CPy_Reraise()
+    if not 0 goto L118 else goto L176 :: bool
+L117:
+    unreachable
+L118:
+    if is_error(r199) goto L120 else goto L119
+L119:
+    CPy_RestoreExcInfo(r199)
+    xdec_ref r199
+L120:
+    r205 = CPy_KeepPropagating()
+    if not r205 goto L123 else goto L121 :: bool
+L121:
+    unreachable
+L122:
+    return 1
+L123:
+    r206 = <error> :: None
+    return r206
+L124:
+    dec_ref r9
+    goto L13
+L125:
+    dec_ref r18
+    goto L13
+L126:
+    dec_ref r24
+    goto L12
+L127:
+    dec_ref r5
+    goto L18
+L128:
+    dec_ref r5
+    goto L15
+L129:
+    dec_ref r25
+    goto L16
+L130:
+    dec_ref r34
+    goto L29
+L131:
+    dec_ref r43
+    goto L29
+L132:
+    dec_ref r49
+    goto L28
+L133:
+    dec_ref r5
+    goto L34
+L134:
+    dec_ref r5
+    goto L31
+L135:
+    dec_ref r50
+    goto L32
+L136:
+    dec_ref r5
+    goto L123
+L137:
+    dec_ref r5
+    dec_ref r59
+    goto L123
+L138:
+    dec_ref r5
+    dec_ref r68
+    goto L123
+L139:
+    dec_ref r5
+    dec_ref r75
+    goto L123
+L140:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r79
+    goto L123
+L141:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r88
+    goto L123
+L142:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    goto L123
+L143:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    goto L123
+L144:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r103
+    dec_ref r104
+    goto L123
+L145:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r103
+    dec_ref r106
+    goto L123
+L146:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r111
+    goto L102
+L147:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r111
+    dec_ref r113
+    goto L102
+L148:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r113
+    goto L102
+L149:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r113
+    dec_ref r118 :: int
+    goto L102
+L150:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r113
+    dec_ref r118 :: int
+    dec_ref r122 :: int
+    goto L102
+L151:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r113
+    dec_ref r126
+    dec_ref r127
+    goto L102
+L152:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r131
+    dec_ref r132
+    goto L102
+L153:
+    dec_ref r5
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r131
+    dec_ref r134
+    goto L102
+L154:
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r139
+    goto L82
+L155:
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref r139
+    dec_ref r141
+    goto L82
+L156:
+    dec_ref r145
+    goto L72
+L157:
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref current_seq
+    goto L82
+L158:
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref current_seq
+    dec_ref r148
+    goto L82
+L159:
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref current_seq
+    dec_ref r156
+    goto L81
+L160:
+    dec_ref r75
+    dec_ref r95
+    dec_ref d
+    dec_ref current_seq
+    dec_ref r156
+    goto L82
+L161:
+    dec_ref r75
+    dec_ref r95
+    dec_ref r156
+    goto L82
+L162:
+    dec_ref r168
+    dec_ref r169
+    dec_ref r170
+    goto L88
+L163:
+    dec_ref r103
+    dec_ref r106
+    dec_ref r131
+    dec_ref r134
+    dec_ref r166
+    goto L86
+L164:
+    dec_ref r103
+    dec_ref r106
+    dec_ref r131
+    dec_ref r134
+    goto L89
+L165:
+    dec_ref r131
+    dec_ref r134
+    goto L95
+L166:
+    dec_ref r131
+    goto L98
+L167:
+    dec_ref r184
+    goto L94
+L168:
+    dec_ref r103
+    dec_ref r106
+    xdec_ref r179
+    goto L97
+L169:
+    dec_ref r103
+    dec_ref r106
+    goto L101
+L170:
+    dec_ref r188
+    dec_ref r189
+    dec_ref r190
+    goto L108
+L171:
+    dec_ref r103
+    dec_ref r106
+    dec_ref r186
+    goto L106
+L172:
+    dec_ref r103
+    dec_ref r106
+    goto L109
+L173:
+    dec_ref r103
+    dec_ref r106
+    goto L115
+L174:
+    dec_ref r103
+    goto L118
+L175:
+    dec_ref r204
+    goto L114
+L176:
+    xdec_ref r199
+    goto L117
+
+def process_line_no_write(line):
+    line, r0, r1 :: str
+    r2 :: i32
+    r3 :: bit
+    r4 :: object
+    r5, r6, r7 :: bit
+    r8, r9 :: str
+    r10 :: i32
+    r11 :: bit
+    r12 :: object
+    r13, r14, r15 :: bit
+    r16, r17 :: str
+    r18 :: tuple[int, str, str]
+    r19, r20 :: str
+    r21 :: i32
+    r22 :: bit
+    r23 :: object
+    r24, r25, r26 :: bit
+    r27 :: str
+    r28 :: tuple[int, str, str]
+    r29 :: str
+    r30 :: object[1]
+    r31 :: object_ptr
+    r32 :: object
+    r33, r34, r35, r36, protein, r37 :: str
+    r38 :: list
+    r39 :: object
+    r40 :: list
+    r41, r42 :: str
+    r43, r44 :: tuple[int, str, str]
+L0:
+    r0 = CPyStr_GetItem(line, 0)
+    if is_error(r0) goto L25 (error at process_line_no_write:58) else goto L1
+L1:
+    r1 = '\n'
+    r2 = PyUnicode_Compare(r0, r1)
+    dec_ref r0
+    r3 = r2 == -1
+    if r3 goto L2 else goto L4 :: bool
+L2:
+    r4 = PyErr_Occurred()
+    r5 = r4 != 0
+    if r5 goto L3 else goto L4 :: bool
+L3:
+    r6 = CPy_KeepPropagating()
+    if not r6 goto L25 (error at process_line_no_write:58) else goto L4 :: bool
+L4:
+    r7 = r2 == 0
+    if r7 goto L10 else goto L5 :: bool
+L5:
+    r8 = CPyStr_GetItem(line, 0)
+    if is_error(r8) goto L25 (error at process_line_no_write:58) else goto L6
+L6:
+    r9 = '\r'
+    r10 = PyUnicode_Compare(r8, r9)
+    dec_ref r8
+    r11 = r10 == -1
+    if r11 goto L7 else goto L9 :: bool
+L7:
+    r12 = PyErr_Occurred()
+    r13 = r12 != 0
+    if r13 goto L8 else goto L9 :: bool
+L8:
+    r14 = CPy_KeepPropagating()
+    if not r14 goto L25 (error at process_line_no_write:58) else goto L9 :: bool
+L9:
+    r15 = r10 == 0
+    if r15 goto L10 else goto L11 :: bool
+L10:
+    r16 = '\n'
+    r17 = ''
+    inc_ref r16
+    inc_ref r17
+    r18 = (0, r16, r17)
+    return r18
+L11:
+    r19 = CPyStr_GetItem(line, 0)
+    if is_error(r19) goto L25 (error at process_line_no_write:60) else goto L12
+L12:
+    r20 = '>'
+    r21 = PyUnicode_Compare(r19, r20)
+    dec_ref r19
+    r22 = r21 == -1
+    if r22 goto L13 else goto L15 :: bool
+L13:
+    r23 = PyErr_Occurred()
+    r24 = r23 != 0
+    if r24 goto L14 else goto L15 :: bool
+L14:
+    r25 = CPy_KeepPropagating()
+    if not r25 goto L25 (error at process_line_no_write:60) else goto L15 :: bool
+L15:
+    r26 = r21 != 0
+    if r26 goto L16 else goto L17 :: bool
+L16:
+    r27 = ''
+    inc_ref line
+    inc_ref r27
+    r28 = (2, line, r27)
+    return r28
+L17:
+    r29 = 'rstrip'
+    r30 = [line]
+    r31 = load_address r30
+    r32 = PyObject_VectorcallMethod(r29, r31, 9223372036854775809, 0)
+    if is_error(r32) goto L25 (error at process_line_no_write:62) else goto L18
+L18:
+    r33 = cast(str, r32)
+    if is_error(r33) goto L25 (error at process_line_no_write:62) else goto L19
+L19:
+    r34 = ' '
+    r35 = '*'
+    r36 = PyUnicode_Replace(r33, r34, r35, -1)
+    dec_ref r33
+    if is_error(r36) goto L25 (error at process_line_no_write:62) else goto L20
+L20:
+    line = r36
+    inc_ref line
+    protein = line
+    r37 = '['
+    r38 = PyUnicode_Split(line, r37, -1)
+    dec_ref line
+    if is_error(r38) goto L26 (error at process_line_no_write:65) else goto L21
+L21:
+    r39 = CPyList_GetSlice(r38, 2, 9223372036854775806)
+    dec_ref r38
+    if is_error(r39) goto L26 (error at process_line_no_write:66) else goto L22
+L22:
+    r40 = cast(list, r39)
+    if is_error(r40) goto L26 (error at process_line_no_write:66) else goto L23
+L23:
+    r41 = ''
+    r42 = PyUnicode_Join(r41, r40)
+    dec_ref r40
+    if is_error(r42) goto L26 (error at process_line_no_write:68) else goto L24
+L24:
+    r43 = (4, protein, r42)
+    return r43
+L25:
+    r44 = <error> :: tuple[int, str, str]
+    return r44
+L26:
+    dec_ref protein
+    goto L25
+
+def process_whole_file(file_path):
+    file_path :: str
+    r0, d :: dict
+    r1, current_seq, r2 :: str
+    r3 :: object
+    r4 :: str
+    r5 :: object
+    r6 :: object[2]
+    r7 :: object_ptr
+    r8, r9 :: object
+    r10 :: str
+    r11 :: object
+    r12 :: str
+    r13 :: object
+    r14 :: object[1]
+    r15 :: object_ptr
+    r16 :: object
+    r17 :: bool
+    r18, r19 :: object
+    r20 :: str
+    r21 :: tuple[int, str, str]
+    r22 :: tuple[dict, str]
+    r23, r24 :: dict
+    r25, r26 :: str
+    r27 :: bit
+    r28, r29 :: tuple[object, object, object]
+    r30, r31, r32 :: object
+    r33 :: object[4]
+    r34 :: object_ptr
+    r35 :: object
+    r36 :: i32
+    r37 :: bit
+    r38 :: bool
+    r39 :: bit
+    r40, r41, r42 :: tuple[object, object, object]
+    r43 :: object
+    r44 :: object[4]
+    r45 :: object_ptr
+    r46 :: object
+    r47 :: bit
+    r48 :: dict
+L0:
+    r0 = PyDict_New()
+    if is_error(r0) goto L35 (error at process_whole_file:72) else goto L1
+L1:
+    d = r0
+    r1 = ''
+    inc_ref r1
+    current_seq = r1
+    r2 = 'r'
+    r3 = builtins :: module
+    r4 = 'open'
+    r5 = CPyObject_GetAttr(r3, r4)
+    if is_error(r5) goto L36 (error at process_whole_file:74) else goto L2
+L2:
+    r6 = [file_path, r2]
+    r7 = load_address r6
+    r8 = _PyObject_Vectorcall(r5, r7, 2, 0)
+    dec_ref r5
+    if is_error(r8) goto L36 (error at process_whole_file:74) else goto L3
+L3:
+    r9 = PyObject_Type(r8)
+    r10 = '__exit__'
+    r11 = CPyObject_GetAttr(r9, r10)
+    if is_error(r11) goto L37 (error at process_whole_file:74) else goto L4
+L4:
+    r12 = '__enter__'
+    r13 = CPyObject_GetAttr(r9, r12)
+    dec_ref r9
+    if is_error(r13) goto L38 (error at process_whole_file:74) else goto L5
+L5:
+    r14 = [r8]
+    r15 = load_address r14
+    r16 = _PyObject_Vectorcall(r13, r15, 1, 0)
+    dec_ref r13
+    if is_error(r16) goto L38 (error at process_whole_file:74) else goto L6
+L6:
+    r17 = 1
+L7:
+    r18 = PyObject_GetIter(r16)
+    dec_ref r16
+    if is_error(r18) goto L39 (error at process_whole_file:75) else goto L8
+L8:
+    r19 = PyIter_Next(r18)
+    if is_error(r19) goto L40 else goto L9
+L9:
+    r20 = cast(str, r19)
+    if is_error(r20) goto L41 (error at process_whole_file:75) else goto L10
+L10:
+    r21 = process_line_no_write(r20)
+    dec_ref r20
+    if is_error(r21) goto L41 (error at process_whole_file:76) else goto L11
+L11:
+    r22 = process_genome(d, current_seq, r21)
+    dec_ref current_seq
+    dec_ref r21
+    if is_error(r22) goto L42 (error at process_whole_file:77) else goto L43
+L12:
+    r23 = borrow r22[0]
+    r24 = unborrow r23
+    d = r24
+    r25 = borrow r22[1]
+    r26 = unborrow r25
+    current_seq = r26
+    goto L8
+L13:
+    r27 = CPy_NoErrOccured()
+    if not r27 goto L14 (error at process_whole_file:75) else goto L22 :: bool
+L14:
+    r28 = CPy_CatchError()
+    r17 = 0
+    r29 = CPy_GetExcInfo()
+    r30 = r29[0]
+    r31 = r29[1]
+    r32 = r29[2]
+    dec_ref r29
+    r33 = [r8, r30, r31, r32]
+    r34 = load_address r33
+    r35 = _PyObject_Vectorcall(r11, r34, 4, 0)
+    if is_error(r35) goto L44 (error at process_whole_file:74) else goto L15
+L15:
+    dec_ref r30
+    dec_ref r31
+    dec_ref r32
+    r36 = PyObject_IsTrue(r35)
+    dec_ref r35
+    r37 = r36 >= 0 :: signed
+    if not r37 goto L20 (error at process_whole_file:74) else goto L16 :: bool
+L16:
+    r38 = truncate r36: i32 to builtins.bool
+    if r38 goto L19 else goto L17 :: bool
+L17:
+    CPy_Reraise()
+    if not 0 goto L20 else goto L45 :: bool
+L18:
+    unreachable
+L19:
+    CPy_RestoreExcInfo(r28)
+    dec_ref r28
+    goto L22
+L20:
+    CPy_RestoreExcInfo(r28)
+    dec_ref r28
+    r39 = CPy_KeepPropagating()
+    if not r39 goto L23 else goto L46 :: bool
+L21:
+    unreachable
+L22:
+    r40 = <error> :: tuple[object, object, object]
+    r41 = r40
+    goto L24
+L23:
+    r42 = CPy_CatchError()
+    r41 = r42
+L24:
+    if r17 goto L25 else goto L47 :: bool
+L25:
+    r43 = load_address _Py_NoneStruct
+    r44 = [r8, r43, r43, r43]
+    r45 = load_address r44
+    r46 = _PyObject_Vectorcall(r11, r45, 4, 0)
+    dec_ref r11
+    if is_error(r46) goto L48 (error at process_whole_file:74) else goto L49
+L26:
+    dec_ref r8
+L27:
+    if is_error(r41) goto L34 else goto L50
+L28:
+    CPy_Reraise()
+    if not 0 goto L30 else goto L51 :: bool
+L29:
+    unreachable
+L30:
+    if is_error(r41) goto L32 else goto L31
+L31:
+    CPy_RestoreExcInfo(r41)
+    xdec_ref r41
+L32:
+    r47 = CPy_KeepPropagating()
+    if not r47 goto L35 else goto L33 :: bool
+L33:
+    unreachable
+L34:
+    return d
+L35:
+    r48 = <error> :: dict
+    return r48
+L36:
+    dec_ref d
+    dec_ref current_seq
+    goto L35
+L37:
+    dec_ref d
+    dec_ref current_seq
+    dec_ref r8
+    dec_ref r9
+    goto L35
+L38:
+    dec_ref d
+    dec_ref current_seq
+    dec_ref r8
+    dec_ref r11
+    goto L35
+L39:
+    dec_ref current_seq
+    goto L14
+L40:
+    dec_ref current_seq
+    dec_ref r18
+    goto L13
+L41:
+    dec_ref current_seq
+    dec_ref r18
+    goto L14
+L42:
+    dec_ref r18
+    goto L14
+L43:
+    dec_ref d
+    goto L12
+L44:
+    dec_ref r30
+    dec_ref r31
+    dec_ref r32
+    goto L20
+L45:
+    dec_ref d
+    dec_ref r8
+    dec_ref r11
+    dec_ref r28
+    goto L18
+L46:
+    dec_ref d
+    dec_ref r8
+    dec_ref r11
+    goto L21
+L47:
+    dec_ref r8
+    dec_ref r11
+    goto L27
+L48:
+    dec_ref d
+    dec_ref r8
+    goto L30
+L49:
+    dec_ref r46
+    goto L26
+L50:
+    dec_ref d
+    goto L28
+L51:
+    xdec_ref r41
+    goto L29
+
+def process_genome(d, seq, line):
+    d :: dict
+    seq :: str
+    line :: tuple[int, str, str]
+    r0 :: int
+    r1 :: bit
+    r2 :: tuple[dict, str]
+    r3 :: int
+    r4 :: bit
+    r5, r6, r7, r8 :: str
+    r9 :: tuple[dict, str]
+    r10 :: int
+    r11 :: bit
+    r12 :: str
+    r13 :: i32
+    r14 :: bit
+    r15 :: bool
+    r16 :: str
+    r17 :: object
+    r18 :: list
+    r19 :: object
+    r20 :: list
+    r21 :: str
+    r22 :: i32
+    r23 :: bit
+    r24 :: str
+    r25 :: object
+    r26 :: list
+    r27 :: object
+    r28 :: list
+    r29 :: i32
+    r30 :: bit
+    r31 :: str
+    r32 :: list
+    r33, r34 :: ptr
+    r35, r36 :: list
+    r37, r38, r39 :: ptr
+    r40 :: str
+    r41 :: i32
+    r42 :: bit
+    r43 :: str
+    r44, r45 :: tuple[dict, str]
+L0:
+    r0 = line[0]
+    r1 = r0 == 0
+    dec_ref r0 :: int
+    if r1 goto L1 else goto L2 :: bool
+L1:
+    inc_ref d
+    inc_ref seq
+    r2 = (d, seq)
+    return r2
+L2:
+    r3 = line[0]
+    r4 = r3 == 2
+    dec_ref r3 :: int
+    if r4 goto L3 else goto L6 :: bool
+L3:
+    r5 = line[1]
+    r6 = '\n'
+    r7 = CPyStr_Build(2, r5, r6)
+    dec_ref r5
+    if is_error(r7) goto L25 (error at process_genome:84) else goto L4
+L4:
+    inc_ref seq
+    r8 = CPyStr_Append(seq, r7)
+    dec_ref r7
+    if is_error(r8) goto L25 (error at process_genome:84) else goto L5
+L5:
+    seq = r8
+    inc_ref d
+    r9 = (d, seq)
+    return r9
+L6:
+    r10 = line[0]
+    r11 = r10 == 4
+    dec_ref r10 :: int
+    if r11 goto L7 else goto L26 :: bool
+L7:
+    r12 = line[2]
+    r13 = PyDict_Contains(d, r12)
+    dec_ref r12
+    r14 = r13 >= 0 :: signed
+    if not r14 goto L25 (error at process_genome:87) else goto L8 :: bool
+L8:
+    r15 = truncate r13: i32 to builtins.bool
+    if r15 goto L9 else goto L19 :: bool
+L9:
+    r16 = line[2]
+    r17 = CPyDict_GetItem(d, r16)
+    dec_ref r16
+    if is_error(r17) goto L25 (error at process_genome:88) else goto L10
+L10:
+    r18 = cast(list, r17)
+    if is_error(r18) goto L25 (error at process_genome:88) else goto L11
+L11:
+    r19 = CPyList_GetItemShort(r18, 0)
+    dec_ref r18
+    if is_error(r19) goto L25 (error at process_genome:88) else goto L12
+L12:
+    r20 = cast(list, r19)
+    if is_error(r20) goto L25 (error at process_genome:88) else goto L13
+L13:
+    r21 = line[1]
+    r22 = PyList_Append(r20, r21)
+    dec_ref r20
+    dec_ref r21
+    r23 = r22 >= 0 :: signed
+    if not r23 goto L25 (error at process_genome:88) else goto L14 :: bool
+L14:
+    r24 = line[2]
+    r25 = CPyDict_GetItem(d, r24)
+    dec_ref r24
+    if is_error(r25) goto L25 (error at process_genome:89) else goto L15
+L15:
+    r26 = cast(list, r25)
+    if is_error(r26) goto L25 (error at process_genome:89) else goto L16
+L16:
+    r27 = CPyList_GetItemShort(r26, 2)
+    dec_ref r26
+    if is_error(r27) goto L25 (error at process_genome:89) else goto L17
+L17:
+    r28 = cast(list, r27)
+    if is_error(r28) goto L25 (error at process_genome:89) else goto L18
+L18:
+    r29 = PyList_Append(r28, seq)
+    dec_ref r28
+    r30 = r29 >= 0 :: signed
+    if not r30 goto L25 (error at process_genome:89) else goto L23 :: bool
+L19:
+    r31 = line[1]
+    r32 = PyList_New(1)
+    if is_error(r32) goto L27 (error at process_genome:92) else goto L20
+L20:
+    r33 = get_element_ptr r32 ob_item :: PyListObject
+    r34 = load_mem r33 :: ptr*
+    set_mem r34, r31 :: builtins.object*
+    r35 = PyList_New(0)
+    if is_error(r35) goto L28 (error at process_genome:92) else goto L21
+L21:
+    r36 = PyList_New(2)
+    if is_error(r36) goto L29 (error at process_genome:92) else goto L22
+L22:
+    r37 = get_element_ptr r36 ob_item :: PyListObject
+    r38 = load_mem r37 :: ptr*
+    set_mem r38, r32 :: builtins.object*
+    r39 = r38 + 8
+    set_mem r39, r35 :: builtins.object*
+    r40 = line[2]
+    r41 = CPyDict_SetItem(d, r40, r36)
+    dec_ref r40
+    dec_ref r36
+    r42 = r41 >= 0 :: signed
+    if not r42 goto L25 (error at process_genome:92) else goto L23 :: bool
+L23:
+    r43 = ''
+    inc_ref r43
+    seq = r43
+L24:
+    inc_ref d
+    r44 = (d, seq)
+    return r44
+L25:
+    r45 = <error> :: tuple[dict, str]
+    return r45
+L26:
+    inc_ref seq
+    goto L24
+L27:
+    dec_ref r31
+    goto L25
+L28:
+    dec_ref r32
+    goto L25
+L29:
+    dec_ref r32
+    dec_ref r35
+    goto L25
+
+def read_file_in_chunks(file_path, output, n_cpus):
+    file_path, output :: str
+    n_cpus :: int
+    r0 :: object
+    r1 :: str
+    r2 :: object
+    r3 :: str
+    r4 :: object
+    r5 :: object[1]
+    r6 :: object_ptr
+    r7 :: object
+    r8, r9 :: int
+    r10 :: list
+    r11 :: str
+    r12 :: object
+    r13 :: str
+    r14 :: object
+    r15 :: object[2]
+    r16 :: object_ptr
+    r17, r18 :: object
+    r19 :: str
+    r20 :: object
+    r21 :: str
+    r22 :: object
+    r23 :: object[1]
+    r24 :: object_ptr
+    r25 :: object
+    r26 :: bool
+    r27 :: str
+    r28 :: object[1]
+    r29 :: object_ptr
+    r30 :: object
+    r31 :: int
+    r32 :: object
+    r33 :: str
+    r34 :: object
+    r35 :: int
+    r36 :: object
+    r37 :: str
+    r38, r39, r40, r41 :: object
+    r42 :: object[3]
+    r43 :: object_ptr
+    r44, r45, r46 :: object
+    r47 :: str
+    r48 :: object
+    r49 :: str
+    r50 :: object
+    r51 :: object[1]
+    r52 :: object_ptr
+    r53 :: object
+    r54 :: bool
+    start_byte, file_counter, r55 :: int
+    r56, _ :: object
+    r57 :: native_int
+    r58 :: bit
+    r59 :: native_int
+    r60, r61, r62 :: bit
+    r63, r64 :: int
+    r65 :: native_int
+    r66 :: bit
+    r67 :: native_int
+    r68, r69, r70 :: bit
+    r71, end_byte :: int
+    r72 :: bytes
+    r73 :: str
+    r74 :: object
+    r75 :: object[3]
+    r76 :: object_ptr
+    r77 :: object
+    r78 :: int
+    r79 :: bit
+    r80 :: int
+    r81 :: tuple[str, int, int, int, str]
+    r82 :: object
+    r83 :: i32
+    r84 :: bit
+    r85 :: int
+    r86 :: object
+    r87, r88 :: tuple[object, object, object]
+    r89, r90, r91 :: object
+    r92 :: object[4]
+    r93 :: object_ptr
+    r94 :: object
+    r95 :: i32
+    r96 :: bit
+    r97 :: bool
+    r98 :: bit
+    r99, r100, r101 :: tuple[object, object, object]
+    r102 :: object
+    r103 :: object[4]
+    r104 :: object_ptr
+    r105 :: object
+    r106 :: bit
+    r107, r108 :: tuple[object, object, object]
+    r109, r110, r111 :: object
+    r112 :: object[4]
+    r113 :: object_ptr
+    r114 :: object
+    r115 :: i32
+    r116 :: bit
+    r117 :: bool
+    r118 :: bit
+    r119, r120, r121 :: tuple[object, object, object]
+    r122 :: object
+    r123 :: object[4]
+    r124 :: object_ptr
+    r125 :: object
+    r126 :: bit
+    r127 :: object
+    r128 :: str
+    r129, r130 :: object
+    r131 :: object[1]
+    r132 :: object_ptr
+    r133, r134, r135 :: object
+    r136 :: str
+    r137 :: object
+    r138 :: str
+    r139 :: object
+    r140 :: object[1]
+    r141 :: object_ptr
+    r142 :: object
+    r143 :: bool
+    r144 :: dict
+    r145 :: str
+    r146 :: object
+    r147 :: str
+    r148 :: object[3]
+    r149 :: object_ptr
+    r150 :: object
+    r151, r152 :: tuple[object, object, object]
+    r153, r154, r155 :: object
+    r156 :: object[4]
+    r157 :: object_ptr
+    r158 :: object
+    r159 :: i32
+    r160 :: bit
+    r161 :: bool
+    r162 :: bit
+    r163, r164, r165 :: tuple[object, object, object]
+    r166 :: object
+    r167 :: object[4]
+    r168 :: object_ptr
+    r169 :: object
+    r170 :: bit
+    r171, r172 :: object
+L0:
+    r0 = os :: module
+    r1 = 'path'
+    r2 = CPyObject_GetAttr(r0, r1)
+    if is_error(r2) goto L111 (error at read_file_in_chunks:97) else goto L1
+L1:
+    r3 = 'getsize'
+    r4 = CPyObject_GetAttr(r2, r3)
+    dec_ref r2
+    if is_error(r4) goto L111 (error at read_file_in_chunks:97) else goto L2
+L2:
+    r5 = [file_path]
+    r6 = load_address r5
+    r7 = _PyObject_Vectorcall(r4, r6, 1, 0)
+    dec_ref r4
+    if is_error(r7) goto L111 (error at read_file_in_chunks:97) else goto L3
+L3:
+    r8 = unbox(int, r7)
+    dec_ref r7
+    if is_error(r8) goto L111 (error at read_file_in_chunks:97) else goto L4
+L4:
+    r9 = CPyTagged_FloorDivide(r8, n_cpus)
+    if is_error(r9) goto L112 (error at read_file_in_chunks:98) else goto L5
+L5:
+    r10 = PyList_New(0)
+    if is_error(r10) goto L113 (error at read_file_in_chunks:99) else goto L6
+L6:
+    r11 = 'r+b'
+    r12 = builtins :: module
+    r13 = 'open'
+    r14 = CPyObject_GetAttr(r12, r13)
+    if is_error(r14) goto L114 (error at read_file_in_chunks:101) else goto L7
+L7:
+    r15 = [file_path, r11]
+    r16 = load_address r15
+    r17 = _PyObject_Vectorcall(r14, r16, 2, 0)
+    dec_ref r14
+    if is_error(r17) goto L114 (error at read_file_in_chunks:101) else goto L8
+L8:
+    r18 = PyObject_Type(r17)
+    r19 = '__exit__'
+    r20 = CPyObject_GetAttr(r18, r19)
+    if is_error(r20) goto L115 (error at read_file_in_chunks:101) else goto L9
+L9:
+    r21 = '__enter__'
+    r22 = CPyObject_GetAttr(r18, r21)
+    dec_ref r18
+    if is_error(r22) goto L116 (error at read_file_in_chunks:101) else goto L10
+L10:
+    r23 = [r17]
+    r24 = load_address r23
+    r25 = _PyObject_Vectorcall(r22, r24, 1, 0)
+    dec_ref r22
+    if is_error(r25) goto L116 (error at read_file_in_chunks:101) else goto L11
+L11:
+    r26 = 1
+L12:
+    r27 = 'fileno'
+    r28 = [r25]
+    r29 = load_address r28
+    r30 = PyObject_VectorcallMethod(r27, r29, 9223372036854775809, 0)
+    if is_error(r30) goto L117 (error at read_file_in_chunks:103) else goto L13
+L13:
+    dec_ref r25
+    r31 = unbox(int, r30)
+    dec_ref r30
+    if is_error(r31) goto L118 (error at read_file_in_chunks:103) else goto L14
+L14:
+    r32 = mmap :: module
+    r33 = 'ACCESS_READ'
+    r34 = CPyObject_GetAttr(r32, r33)
+    if is_error(r34) goto L119 (error at read_file_in_chunks:103) else goto L15
+L15:
+    r35 = unbox(int, r34)
+    dec_ref r34
+    if is_error(r35) goto L119 (error at read_file_in_chunks:103) else goto L16
+L16:
+    r36 = mmap :: module
+    r37 = 'mmap'
+    r38 = CPyObject_GetAttr(r36, r37)
+    if is_error(r38) goto L120 (error at read_file_in_chunks:102) else goto L17
+L17:
+    r39 = box(int, r31)
+    r40 = object 0
+    r41 = box(int, r35)
+    r42 = [r39, r40, r41]
+    r43 = load_address r42
+    r44 = ('length', 'access')
+    r45 = _PyObject_Vectorcall(r38, r43, 1, r44)
+    dec_ref r38
+    if is_error(r45) goto L121 (error at read_file_in_chunks:102) else goto L18
+L18:
+    dec_ref r39
+    dec_ref r41
+    r46 = PyObject_Type(r45)
+    r47 = '__exit__'
+    r48 = CPyObject_GetAttr(r46, r47)
+    if is_error(r48) goto L122 (error at read_file_in_chunks:102) else goto L19
+L19:
+    r49 = '__enter__'
+    r50 = CPyObject_GetAttr(r46, r49)
+    dec_ref r46
+    if is_error(r50) goto L123 (error at read_file_in_chunks:102) else goto L20
+L20:
+    r51 = [r45]
+    r52 = load_address r51
+    r53 = _PyObject_Vectorcall(r50, r52, 1, 0)
+    dec_ref r50
+    if is_error(r53) goto L123 (error at read_file_in_chunks:102) else goto L21
+L21:
+    r54 = 1
+L22:
+    start_byte = 0
+    file_counter = 0
+    r55 = 0
+    inc_ref r55 :: int
+    r56 = box(int, r55)
+    _ = r56
+    dec_ref _
+L23:
+    r57 = r55 & 1
+    r58 = r57 != 0
+    if r58 goto L25 else goto L24 :: bool
+L24:
+    r59 = n_cpus & 1
+    r60 = r59 != 0
+    if r60 goto L25 else goto L26 :: bool
+L25:
+    r61 = CPyTagged_IsLt_(r55, n_cpus)
+    if r61 goto L27 else goto L124 :: bool
+L26:
+    r62 = r55 < n_cpus :: signed
+    if r62 goto L27 else goto L124 :: bool
+L27:
+    r63 = CPyTagged_Add(file_counter, 2)
+    dec_ref file_counter :: int
+    file_counter = r63
+    r64 = CPyTagged_Add(start_byte, r9)
+    r65 = r8 & 1
+    r66 = r65 != 0
+    if r66 goto L29 else goto L28 :: bool
+L28:
+    r67 = r64 & 1
+    r68 = r67 != 0
+    if r68 goto L29 else goto L30 :: bool
+L29:
+    r69 = CPyTagged_IsLt_(r8, r64)
+    if r69 goto L125 else goto L32 :: bool
+L30:
+    r70 = r8 < r64 :: signed
+    if r70 goto L125 else goto L32 :: bool
+L31:
+    inc_ref r8 :: int
+    r71 = r8
+    goto L33
+L32:
+    r71 = r64
+L33:
+    end_byte = r71
+    r72 = b'>'
+    r73 = 'find'
+    r74 = box(int, end_byte)
+    r75 = [r53, r72, r74]
+    r76 = load_address r75
+    r77 = PyObject_VectorcallMethod(r73, r76, 9223372036854775811, 0)
+    if is_error(r77) goto L126 (error at read_file_in_chunks:110) else goto L34
+L34:
+    dec_ref r74
+    r78 = unbox(int, r77)
+    dec_ref r77
+    if is_error(r78) goto L127 (error at read_file_in_chunks:110) else goto L35
+L35:
+    end_byte = r78
+    r79 = end_byte != -2
+    if r79 goto L36 else goto L128 :: bool
+L36:
+    r80 = end_byte
+    goto L38
+L37:
+    inc_ref r8 :: int
+    r80 = r8
+L38:
+    end_byte = r80
+    inc_ref file_path
+    inc_ref end_byte :: int
+    inc_ref file_counter :: int
+    inc_ref output
+    r81 = (file_path, start_byte, end_byte, file_counter, output)
+    r82 = box(tuple[str, int, int, int, str], r81)
+    r83 = PyList_Append(r10, r82)
+    dec_ref r82
+    r84 = r83 >= 0 :: signed
+    if not r84 goto L129 (error at read_file_in_chunks:112) else goto L39 :: bool
+L39:
+    start_byte = end_byte
+L40:
+    r85 = CPyTagged_Add(r55, 2)
+    dec_ref r55 :: int
+    inc_ref r85 :: int
+    r55 = r85
+    r86 = box(int, r85)
+    _ = r86
+    dec_ref _
+    goto L23
+L41:
+    r87 = CPy_CatchError()
+    r54 = 0
+    r88 = CPy_GetExcInfo()
+    r89 = r88[0]
+    r90 = r88[1]
+    r91 = r88[2]
+    dec_ref r88
+    r92 = [r45, r89, r90, r91]
+    r93 = load_address r92
+    r94 = _PyObject_Vectorcall(r48, r93, 4, 0)
+    if is_error(r94) goto L130 (error at read_file_in_chunks:102) else goto L42
+L42:
+    dec_ref r89
+    dec_ref r90
+    dec_ref r91
+    r95 = PyObject_IsTrue(r94)
+    dec_ref r94
+    r96 = r95 >= 0 :: signed
+    if not r96 goto L47 (error at read_file_in_chunks:102) else goto L43 :: bool
+L43:
+    r97 = truncate r95: i32 to builtins.bool
+    if r97 goto L46 else goto L44 :: bool
+L44:
+    CPy_Reraise()
+    if not 0 goto L47 else goto L131 :: bool
+L45:
+    unreachable
+L46:
+    CPy_RestoreExcInfo(r87)
+    dec_ref r87
+    goto L49
+L47:
+    CPy_RestoreExcInfo(r87)
+    dec_ref r87
+    r98 = CPy_KeepPropagating()
+    if not r98 goto L50 else goto L132 :: bool
+L48:
+    unreachable
+L49:
+    r99 = <error> :: tuple[object, object, object]
+    r100 = r99
+    goto L51
+L50:
+    r101 = CPy_CatchError()
+    r100 = r101
+L51:
+    if r54 goto L52 else goto L133 :: bool
+L52:
+    r102 = load_address _Py_NoneStruct
+    r103 = [r45, r102, r102, r102]
+    r104 = load_address r103
+    r105 = _PyObject_Vectorcall(r48, r104, 4, 0)
+    dec_ref r48
+    if is_error(r105) goto L134 (error at read_file_in_chunks:102) else goto L135
+L53:
+    dec_ref r45
+L54:
+    if is_error(r100) goto L69 else goto L55
+L55:
+    CPy_Reraise()
+    if not 0 goto L57 else goto L136 :: bool
+L56:
+    unreachable
+L57:
+    if is_error(r100) goto L59 else goto L58
+L58:
+    CPy_RestoreExcInfo(r100)
+    xdec_ref r100
+L59:
+    r106 = CPy_KeepPropagating()
+    if not r106 goto L61 else goto L137 :: bool
+L60:
+    unreachable
+L61:
+    r107 = CPy_CatchError()
+    r26 = 0
+    r108 = CPy_GetExcInfo()
+    r109 = r108[0]
+    r110 = r108[1]
+    r111 = r108[2]
+    dec_ref r108
+    r112 = [r17, r109, r110, r111]
+    r113 = load_address r112
+    r114 = _PyObject_Vectorcall(r20, r113, 4, 0)
+    if is_error(r114) goto L138 (error at read_file_in_chunks:101) else goto L62
+L62:
+    dec_ref r109
+    dec_ref r110
+    dec_ref r111
+    r115 = PyObject_IsTrue(r114)
+    dec_ref r114
+    r116 = r115 >= 0 :: signed
+    if not r116 goto L67 (error at read_file_in_chunks:101) else goto L63 :: bool
+L63:
+    r117 = truncate r115: i32 to builtins.bool
+    if r117 goto L66 else goto L64 :: bool
+L64:
+    CPy_Reraise()
+    if not 0 goto L67 else goto L139 :: bool
+L65:
+    unreachable
+L66:
+    CPy_RestoreExcInfo(r107)
+    dec_ref r107
+    goto L69
+L67:
+    CPy_RestoreExcInfo(r107)
+    dec_ref r107
+    r118 = CPy_KeepPropagating()
+    if not r118 goto L70 else goto L140 :: bool
+L68:
+    unreachable
+L69:
+    r119 = <error> :: tuple[object, object, object]
+    r120 = r119
+    goto L71
+L70:
+    r121 = CPy_CatchError()
+    r120 = r121
+L71:
+    if r26 goto L72 else goto L141 :: bool
+L72:
+    r122 = load_address _Py_NoneStruct
+    r123 = [r17, r122, r122, r122]
+    r124 = load_address r123
+    r125 = _PyObject_Vectorcall(r20, r124, 4, 0)
+    dec_ref r20
+    if is_error(r125) goto L142 (error at read_file_in_chunks:101) else goto L143
+L73:
+    dec_ref r17
+L74:
+    if is_error(r120) goto L81 else goto L144
+L75:
+    CPy_Reraise()
+    if not 0 goto L77 else goto L145 :: bool
+L76:
+    unreachable
+L77:
+    if is_error(r120) goto L79 else goto L78
+L78:
+    CPy_RestoreExcInfo(r120)
+    xdec_ref r120
+L79:
+    r126 = CPy_KeepPropagating()
+    if not r126 goto L111 else goto L80 :: bool
+L80:
+    unreachable
+L81:
+    r127 = multiprocessing :: module
+    r128 = 'Pool'
+    r129 = CPyObject_GetAttr(r127, r128)
+    if is_error(r129) goto L146 (error at read_file_in_chunks:115) else goto L82
+L82:
+    inc_ref n_cpus :: int
+    r130 = box(int, n_cpus)
+    r131 = [r130]
+    r132 = load_address r131
+    r133 = ('processes',)
+    r134 = _PyObject_Vectorcall(r129, r132, 0, r133)
+    dec_ref r129
+    if is_error(r134) goto L147 (error at read_file_in_chunks:115) else goto L83
+L83:
+    dec_ref r130
+    r135 = PyObject_Type(r134)
+    r136 = '__exit__'
+    r137 = CPyObject_GetAttr(r135, r136)
+    if is_error(r137) goto L148 (error at read_file_in_chunks:115) else goto L84
+L84:
+    r138 = '__enter__'
+    r139 = CPyObject_GetAttr(r135, r138)
+    dec_ref r135
+    if is_error(r139) goto L149 (error at read_file_in_chunks:115) else goto L85
+L85:
+    r140 = [r134]
+    r141 = load_address r140
+    r142 = _PyObject_Vectorcall(r139, r141, 1, 0)
+    dec_ref r139
+    if is_error(r142) goto L149 (error at read_file_in_chunks:115) else goto L86
+L86:
+    r143 = 1
+L87:
+    r144 = process_fasta_input.globals :: static
+    r145 = 'process_chunk'
+    r146 = CPyDict_GetItem(r144, r145)
+    if is_error(r146) goto L150 (error at read_file_in_chunks:116) else goto L88
+L88:
+    r147 = 'starmap'
+    r148 = [r142, r146, r10]
+    r149 = load_address r148
+    r150 = PyObject_VectorcallMethod(r147, r149, 9223372036854775811, 0)
+    if is_error(r150) goto L151 (error at read_file_in_chunks:116) else goto L152
+L89:
+    dec_ref r142
+    dec_ref r146
+    dec_ref r10
+    goto L98
+L90:
+    r151 = CPy_CatchError()
+    r143 = 0
+    r152 = CPy_GetExcInfo()
+    r153 = r152[0]
+    r154 = r152[1]
+    r155 = r152[2]
+    dec_ref r152
+    r156 = [r134, r153, r154, r155]
+    r157 = load_address r156
+    r158 = _PyObject_Vectorcall(r137, r157, 4, 0)
+    if is_error(r158) goto L153 (error at read_file_in_chunks:115) else goto L91
+L91:
+    dec_ref r153
+    dec_ref r154
+    dec_ref r155
+    r159 = PyObject_IsTrue(r158)
+    dec_ref r158
+    r160 = r159 >= 0 :: signed
+    if not r160 goto L96 (error at read_file_in_chunks:115) else goto L92 :: bool
+L92:
+    r161 = truncate r159: i32 to builtins.bool
+    if r161 goto L95 else goto L93 :: bool
+L93:
+    CPy_Reraise()
+    if not 0 goto L96 else goto L154 :: bool
+L94:
+    unreachable
+L95:
+    CPy_RestoreExcInfo(r151)
+    dec_ref r151
+    goto L98
+L96:
+    CPy_RestoreExcInfo(r151)
+    dec_ref r151
+    r162 = CPy_KeepPropagating()
+    if not r162 goto L99 else goto L155 :: bool
+L97:
+    unreachable
+L98:
+    r163 = <error> :: tuple[object, object, object]
+    r164 = r163
+    goto L100
+L99:
+    r165 = CPy_CatchError()
+    r164 = r165
+L100:
+    if r143 goto L101 else goto L156 :: bool
+L101:
+    r166 = load_address _Py_NoneStruct
+    r167 = [r134, r166, r166, r166]
+    r168 = load_address r167
+    r169 = _PyObject_Vectorcall(r137, r168, 4, 0)
+    dec_ref r137
+    if is_error(r169) goto L157 (error at read_file_in_chunks:115) else goto L158
+L102:
+    dec_ref r134
+L103:
+    if is_error(r164) goto L110 else goto L104
+L104:
+    CPy_Reraise()
+    if not 0 goto L106 else goto L159 :: bool
+L105:
+    unreachable
+L106:
+    if is_error(r164) goto L108 else goto L107
+L107:
+    CPy_RestoreExcInfo(r164)
+    xdec_ref r164
+L108:
+    r170 = CPy_KeepPropagating()
+    if not r170 goto L111 else goto L109 :: bool
+L109:
+    unreachable
+L110:
+    r171 = box(None, 1)
+    inc_ref r171
+    return r171
+L111:
+    r172 = <error> :: object
+    return r172
+L112:
+    dec_ref r8 :: int
+    goto L111
+L113:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    goto L111
+L114:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r10
+    goto L111
+L115:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r10
+    dec_ref r17
+    dec_ref r18
+    goto L111
+L116:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r10
+    dec_ref r17
+    dec_ref r20
+    goto L111
+L117:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r25
+    goto L61
+L118:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    goto L61
+L119:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r31 :: int
+    goto L61
+L120:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r31 :: int
+    dec_ref r35 :: int
+    goto L61
+L121:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r39
+    dec_ref r41
+    goto L61
+L122:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r45
+    dec_ref r46
+    goto L61
+L123:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r45
+    dec_ref r48
+    goto L61
+L124:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r53
+    dec_ref start_byte :: int
+    dec_ref file_counter :: int
+    dec_ref r55 :: int
+    goto L49
+L125:
+    dec_ref r64 :: int
+    goto L31
+L126:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r53
+    dec_ref start_byte :: int
+    dec_ref file_counter :: int
+    dec_ref r55 :: int
+    dec_ref r74
+    goto L41
+L127:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r53
+    dec_ref start_byte :: int
+    dec_ref file_counter :: int
+    dec_ref r55 :: int
+    goto L41
+L128:
+    dec_ref end_byte :: int
+    goto L37
+L129:
+    dec_ref r8 :: int
+    dec_ref r9 :: int
+    dec_ref r53
+    dec_ref file_counter :: int
+    dec_ref r55 :: int
+    dec_ref end_byte :: int
+    goto L41
+L130:
+    dec_ref r89
+    dec_ref r90
+    dec_ref r91
+    goto L47
+L131:
+    dec_ref r10
+    dec_ref r17
+    dec_ref r20
+    dec_ref r45
+    dec_ref r48
+    dec_ref r87
+    goto L45
+L132:
+    dec_ref r10
+    dec_ref r17
+    dec_ref r20
+    dec_ref r45
+    dec_ref r48
+    goto L48
+L133:
+    dec_ref r45
+    dec_ref r48
+    goto L54
+L134:
+    dec_ref r45
+    goto L57
+L135:
+    dec_ref r105
+    goto L53
+L136:
+    dec_ref r10
+    dec_ref r17
+    dec_ref r20
+    xdec_ref r100
+    goto L56
+L137:
+    dec_ref r10
+    dec_ref r17
+    dec_ref r20
+    goto L60
+L138:
+    dec_ref r109
+    dec_ref r110
+    dec_ref r111
+    goto L67
+L139:
+    dec_ref r10
+    dec_ref r17
+    dec_ref r20
+    dec_ref r107
+    goto L65
+L140:
+    dec_ref r10
+    dec_ref r17
+    dec_ref r20
+    goto L68
+L141:
+    dec_ref r17
+    dec_ref r20
+    goto L74
+L142:
+    dec_ref r10
+    dec_ref r17
+    goto L77
+L143:
+    dec_ref r125
+    goto L73
+L144:
+    dec_ref r10
+    goto L75
+L145:
+    xdec_ref r120
+    goto L76
+L146:
+    dec_ref r10
+    goto L111
+L147:
+    dec_ref r10
+    dec_ref r130
+    goto L111
+L148:
+    dec_ref r10
+    dec_ref r134
+    dec_ref r135
+    goto L111
+L149:
+    dec_ref r10
+    dec_ref r134
+    dec_ref r137
+    goto L111
+L150:
+    dec_ref r10
+    dec_ref r142
+    goto L90
+L151:
+    dec_ref r10
+    dec_ref r142
+    dec_ref r146
+    goto L90
+L152:
+    dec_ref r150
+    goto L89
+L153:
+    dec_ref r153
+    dec_ref r154
+    dec_ref r155
+    goto L96
+L154:
+    dec_ref r134
+    dec_ref r137
+    dec_ref r151
+    goto L94
+L155:
+    dec_ref r134
+    dec_ref r137
+    goto L97
+L156:
+    dec_ref r134
+    dec_ref r137
+    goto L103
+L157:
+    dec_ref r134
+    goto L106
+L158:
+    dec_ref r169
+    goto L102
+L159:
+    xdec_ref r164
+    goto L105
+
+def process_fasta_file(file_path, output, n_cpus):
+    file_path, output :: str
+    n_cpus :: int
+    r0 :: object
+    r1 :: None
+L0:
+    r0 = read_file_in_chunks(file_path, output, n_cpus)
+    if is_error(r0) goto L2 (error at process_fasta_file:119) else goto L3
+L1:
+    return 1
+L2:
+    r1 = <error> :: None
+    return r1
+L3:
+    dec_ref r0
+    goto L1
+
+def __top_level__():
+    r0, r1 :: object
+    r2 :: bit
+    r3 :: str
+    r4 :: object
+    r5, r6, r7, r8, r9 :: object_ptr
+    r10 :: object_ptr[5]
+    r11 :: c_ptr
+    r12 :: native_int[5]
+    r13 :: c_ptr
+    r14 :: object
+    r15 :: dict
+    r16, r17 :: str
+    r18 :: bit
+    r19 :: object
+    r20 :: str
+    r21 :: dict
+    r22 :: object
+    r23 :: str
+    r24 :: object
+    r25 :: str
+    r26 :: object
+    r27 :: object[1]
+    r28 :: object_ptr
+    r29 :: object
+    r30 :: int
+    r31 :: dict
+    r32 :: str
+    r33 :: object
+    r34 :: i32
+    r35 :: bit
+    r36 :: None
+L0:
+    r0 = builtins :: module
+    r1 = load_address _Py_NoneStruct
+    r2 = r0 != r1
+    if r2 goto L3 else goto L1 :: bool
+L1:
+    r3 = 'builtins'
+    r4 = PyImport_Import(r3)
+    if is_error(r4) goto L10 (error at <module>:-1) else goto L2
+L2:
+    builtins = r4 :: module
+    dec_ref r4
+L3:
+    r5 = load_address argparse :: module
+    r6 = load_address os :: module
+    r7 = load_address time :: module
+    r8 = load_address mmap :: module
+    r9 = load_address multiprocessing :: module
+    r10 = [r5, r6, r7, r8, r9]
+    r11 = load_address r10
+    r12 = [1, 2, 3, 4, 5]
+    r13 = load_address r12
+    r14 = (('argparse', 'argparse', 'argparse'), ('os', 'os', 'os'), ('time', 'time', 'time'), ('mmap', 'mmap', 'mmap'), ('multiprocessing', 'multiprocessing', 'multiprocessing'))
+    r15 = process_fasta_input.globals :: static
+    r16 = 'process_fasta_input.py'
+    r17 = '<module>'
+    r18 = CPyImport_ImportMany(r14, r11, r15, r16, r17, r13)
+    if not r18 goto L10 else goto L4 :: bool
+L4:
+    r19 = ('Dict', 'Union', 'List')
+    r20 = 'typing'
+    r21 = process_fasta_input.globals :: static
+    r22 = CPyImport_ImportFromMany(r20, r19, r19, r21)
+    if is_error(r22) goto L10 (error at <module>:6) else goto L5
+L5:
+    typing = r22 :: module
+    dec_ref r22
+    r23 = 'SC_PAGE_SIZE'
+    r24 = os :: module
+    r25 = 'sysconf'
+    r26 = CPyObject_GetAttr(r24, r25)
+    if is_error(r26) goto L10 (error at <module>:9) else goto L6
+L6:
+    r27 = [r23]
+    r28 = load_address r27
+    r29 = _PyObject_Vectorcall(r26, r28, 1, 0)
+    dec_ref r26
+    if is_error(r29) goto L10 (error at <module>:9) else goto L7
+L7:
+    r30 = unbox(int, r29)
+    dec_ref r29
+    if is_error(r30) goto L10 (error at <module>:9) else goto L8
+L8:
+    r31 = process_fasta_input.globals :: static
+    r32 = 'MMAP_PAGE_SIZE'
+    r33 = box(int, r30)
+    r34 = CPyDict_SetItem(r31, r32, r33)
+    dec_ref r33
+    r35 = r34 >= 0 :: signed
+    if not r35 goto L10 (error at <module>:9) else goto L9 :: bool
+L9:
+    return 1
+L10:
+    r36 = <error> :: None
+    return r36
