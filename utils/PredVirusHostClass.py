@@ -3,19 +3,22 @@ import os
 import logging as log
 import argparse
 import glob
-import json
+import pickle
 from typing import Any, List
 from utils import assign_paths, assign_separators 
-from process_fasta_input import process_fasta_file
+from process_fasta_input_uc import read_file_in_chunks
 logger = log.getLogger(__name__)
 
 class PredVirusHost:
     def __init__(self, args: argparse.Namespace) -> None:
         if args.verbose is None:
+            self.verbosity: int = 0
             log.basicConfig(format="%(levelname)s: %(message)s")
         elif args.verbose == 1: 
+            self.verbosity: int = 1
             log.basicConfig(format="%(message)s", level=log.INFO)
         else:
+            self.verbosity: int = 2
             log.basicConfig(format="DEBUG: %(asctime)s %(message)s", level=log.DEBUG)
         logger.info("Verbose mode on.")
         logger.debug("Debug mode on.")
@@ -47,8 +50,8 @@ class PredVirusHost:
 
     def check_files(self) -> str:
         fl: List[str] = glob.glob(f'{self.directory}/fastafile*.faa')
-        dl : List[str] = glob.glob(f'{self.directory}/data*.json')
-        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.json')
+        dl : List[str] = glob.glob(f'{self.directory}/data*.pkl')
+        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
         msg: str = ""
         n_files: int = 0
         return_val: bool = False
@@ -58,11 +61,11 @@ class PredVirusHost:
             return_val = True
         if len(dl) > 0:
             n_files += len(dl)
-            msg += f'Files need to be moved or renamed to something other than <data*.json>.\n'
+            msg += f'Files need to be moved or renamed to something other than <data*.pkl>.\n'
             return_val = True
         if len(spl) > 0:
             n_files += len(spl)
-            msg += f'Files need to be moved or renamed to something other than <data*.json>.\n'
+            msg += f'Files need to be moved or renamed to something other than <data*.pkl>.\n'
             return_val = True
 
         if return_val:
@@ -70,16 +73,16 @@ class PredVirusHost:
         return msg
 
     def process_fasta(self) -> None:
-        process_fasta_file(self.input_file, self.directory, self.cpu_counter, self.n_min)
-        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.json')
+        read_file_in_chunks(self.input_file, self.directory, self.cpu_counter, self.n_min, self.verbosity)
+        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
         short_proteins: List[str] = []
         for file_path in spl:
             logger.debug(f'reading file {file_path}')
-            with open(file_path, 'r') as j:
-                data: List[str] = json.load(j)
+            with open(file_path, 'rb') as j:
+                data: List[str] = pickle.load(j)
                 for item in data:
                     short_proteins.append(item)
-        logger.debug(short_proteins)
+        logger.debug(f'Short proteins: {short_proteins}')
         
 
     def load_protein_names(self) -> None:
@@ -106,7 +109,7 @@ class PredVirusHost:
             self.proteins_dict[key] = [value, length]
 
     def count_filter(self, number: int) -> None:
-        print(f'Number of proteins as a minimum is: {number}')
+        logger.info(f'Number of proteins as a minimum is: {number}')
         if number == 1:
             return
         f = open(f'{self.directory}/tmp1', 'a')

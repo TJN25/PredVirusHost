@@ -1,7 +1,7 @@
 import os
 import mmap
 import multiprocessing
-import json
+import pickle
 import hashlib
 import logging
 from typing import Dict, List
@@ -30,64 +30,63 @@ def process_chunk(file_path: str, start_byte, end_byte, file_counter: int, outpu
     logger.debug(f'Processing chunk {file_counter} from byte <{start_byte}> to byte <{end_byte}>')
     offset = align_offset(start_byte, MMAP_PAGE_SIZE)
     fasta_file: str = os.path.join(output, f"fastafile_{file_counter}.faa")
-    d: dict[str, List[List[str]]] = {}
-    current_genome: str = ""
-    short_proteins: List[str] = []
+    d: dict[bytes, List[List[bytes]]] = {}
+    current_genome: bytes = b""
+    short_proteins: List[bytes] = []
     line_res: tuple[int, bytes, bytes]
     with open(file_path, "r+b") as file:
-        length = end_byte - offset
-        with mmap.mmap(
-            file.fileno(), length, access=mmap.ACCESS_READ, offset=offset
-        ) as mmapped_file:
-            mmapped_file.seek(start_byte - offset)
-            current_seq: str = ""
-            for line in iter(mmapped_file.readline, b""):
-                line_res = process_line(line)
-                d, current_seq, current_genome, short_proteins = process_genome(d, current_seq, current_genome, line_res, n_min, fasta_file, short_proteins)
-    with open(os.path.join(output, f'data_{file_counter}.json'), 'w') as json_file:
-        json.dump(d, json_file, indent=4,  sort_keys=True, separators=(',',':'))
-    with open(os.path.join(output, f'short_proteins_{file_counter}.json'), 'w') as json_file:
-        json.dump(short_proteins, json_file)
+        with open(fasta_file, 'a') as ff:
+            length = end_byte - offset
+            with mmap.mmap(
+                file.fileno(), length, access=mmap.ACCESS_READ, offset=offset
+            ) as mmapped_file:
+                mmapped_file.seek(start_byte - offset)
+                current_seq: bytes = b""
+                for line in iter(mmapped_file.readline, b""):
+                    line_res = process_line(line)
+                    d, current_seq, current_genome, short_proteins = process_genome(d, current_seq, current_genome, line_res, n_min, fasta_file, short_proteins, ff)
+    with open(os.path.join(output, f'data_{file_counter}.pkl'), 'wb') as pickle_file:
+        pickle.dump(d, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(os.path.join(output, f'short_proteins_{file_counter}.pkl'), 'wb') as pickle_file:
+        pickle.dump(short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
-def process_genome(d: Dict[str, List[List[str]]], seq: str, current_genome: str, line: tuple[int, bytes, bytes], n_min: int, fasta_file: str, short_proteins: List[str]) -> tuple[Dict[str, List[List[str]]], str, str, List[str]]:
+def process_genome(d: Dict[bytes, List[List[bytes]]], seq: bytes, current_genome: bytes, line: tuple[int, bytes, bytes], n_min: int, fasta_file: str, short_proteins: List[bytes], ff) -> tuple[Dict[bytes, List[List[bytes]]], bytes, bytes, List[bytes]]:
     line_type: int = line[0]
-    genome: str = line[2].decode('UTF-8')
+    genome: bytes = line[2]
     protein: bytes = line[1]
     if line_type == 0:
         return d, seq, current_genome, short_proteins
     if line_type == 1:
-        seq += protein.decode('UTF-8')
+        seq += protein
         return d, seq, current_genome, short_proteins
     if line_type == 2:
-        hash_name: str = str(hashlib.md5(protein).hexdigest())
+        hash_name: bytes = bytes(hashlib.md5(protein).hexdigest(), 'utf-8')
         if current_genome in d:
-            genomes: List[List[str]] = d[current_genome]
-            names: List[str] = genomes[0]
+            genomes: List[List[bytes]] = d[current_genome]
+            names: List[bytes] = genomes[0]
             if current_genome != genome:
                 if len(names) < n_min:
                     short_proteins.append(current_genome)
-            if genomes[2][0] == 'true':
-                with open(fasta_file, 'a') as ff:
-                    ff.write(f'{names[-1]}\n{seq}\n')
+            if genomes[2][0] == b'true':
+                ff.write(f'>{names[-1].decode('UTF-8')}\n{seq.decode('UTF-8')}\n')
             else:
-                seqs: List[str] = genomes[1]
+                seqs: List[bytes] = genomes[1]
                 seqs.append(seq)
                 if len(names) >= n_min:
                     if current_genome in short_proteins:
                         short_proteins.remove(current_genome)
-                    genomes[2][0] = 'true'
-                    with open(fasta_file, 'a') as ff:
-                        for i, seq in enumerate(seqs):
-                            ff.write(f'{names[i]}\n{seq}\n')
+                    genomes[2][0] = b'true'
+                    for i, seq in enumerate(seqs):
+                        ff.write(f'>{names[i].decode('UTF-8')}\n{seq.decode('UTF-8')}\n')
                     seqs.clear()
         current_genome = genome
         if genome in d:
-            genome_list: List[List[str]] = d[genome]
+            genome_list: List[List[bytes]] = d[genome]
             names = genome_list[0]
             names.append(hash_name)
         else:
-            d[genome] = [[hash_name], [], ['false']]
-        seq = ""
+            d[genome] = [[hash_name], [], [b'false']]
+        seq = b""
     return d, seq, current_genome, short_proteins
 
 def read_file_in_chunks(file_path: str, output: str, n_cpus: int, n_min: int):
