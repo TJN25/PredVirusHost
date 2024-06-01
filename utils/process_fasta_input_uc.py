@@ -94,7 +94,8 @@ class ProcessChunk:
                     if len(names) < self.n_min:
                         self.short_proteins.append(self.current_genome)
                 if genomes[2][0] == b'true':
-                    output_lines = b'>' + names[-1] + b'\n' + self.seq + b'\n'
+                    output_lines = b'\n'.join([b'>', names[-1], self.seq])
+                    # output_lines = b'>' + names[-1] + b'\n' + self.seq + b'\n'
                     ff.write(output_lines)
                 else:
                     seqs: List[bytes] = genomes[1]
@@ -104,7 +105,8 @@ class ProcessChunk:
                             self.short_proteins.remove(self.current_genome)
                         genomes[2][0] = b'true'
                         for i, seq in enumerate(seqs):
-                            output_lines = b'>' + names[i] + b'\n' + seq + b'\n'
+                            output_lines = b'\n'.join([b'>', names[i], seq])
+                            # output_lines = b'>' + names[i] + b'\n' + seq + b'\n'
                             ff.write(output_lines)
                         seqs.clear()
             self.current_genome = self.genome
