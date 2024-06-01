@@ -41,7 +41,7 @@ class ProcessChunk:
         self.genome: bytes
         self.seq: bytes = b''
         with open(self.file_path, "r+b") as file:
-            with open(self.fasta_file, 'ab') as ff:
+            with open(self.fasta_file, 'a') as self.ff:
                 length = self.end_byte - self.offset
                 with mmap.mmap(
                     file.fileno(), length, access=mmap.ACCESS_READ, offset=self.offset
@@ -49,7 +49,6 @@ class ProcessChunk:
                     mmapped_file.seek(self.start_byte - self.offset)
                     for line in iter(mmapped_file.readline, b""):
                         self.process_line(line)
-                        self.process_genome(ff)
 
     def write_chunk(self) -> None:
         with open(os.path.join(self.output, f'data_{self.file_counter}.pkl'), 'wb') as pickle_file:
@@ -59,63 +58,50 @@ class ProcessChunk:
 
     def process_line(self, line: bytes) -> None:
         if line[:1] == b'\n' or line[:1] == b'\r': 
-            self.line_type = 0
-            self.protein = b'\n'
-            self.genome = b''
             return
         if line[:1] != b'>':
-            self.line_type = 1
-            self.protein = line
-            self.genome = b''
+            self.seq += line
             return
-        line = line.rstrip().replace(b' ', b'*')
-        protein: bytes
-        protein = line
+        line = line.replace(b' ', b'*')
+        self.protein = line
         words: list[bytes] = line.split(b"[")#]
         gl: list[bytes] = words[1:]
         self.genome = b''.join(gl)
-        self.line_type = 2
-        self.protein = protein
+        self.process_genome()
         return
 
-    def process_genome(self, ff) -> None:
-        output_lines: bytes = b''
-        if self.line_type == 0:
-            return
-        if self.line_type == 1:
-            self.seq += self.protein
-            return 
-        if self.line_type == 2:
-            hash_name: bytes = bytes(hashlib.md5(self.protein).hexdigest(), 'utf-8')
-            if self.current_genome in self.d:
-                genomes: List[List[bytes]] = self.d[self.current_genome]
-                names: List[bytes] = genomes[0]
-                if self.current_genome != self.genome:
-                    if len(names) < self.n_min:
-                        self.short_proteins.append(self.current_genome)
-                if genomes[2][0] == b'true':
-                    output_lines = b'>' + names[-1] + b'\n' + self.seq + b'\n'
-                    ff.write(output_lines)
-                else:
-                    seqs: List[bytes] = genomes[1]
-                    seqs.append(self.seq)
-                    if len(names) >= self.n_min:
-                        if self.current_genome in self.short_proteins:
-                            self.short_proteins.remove(self.current_genome)
-                        genomes[2][0] = b'true'
-                        for i, seq in enumerate(seqs):
-                            output_lines = b'>' + names[i] + b'\n' + seq + b'\n'
-                            ff.write(output_lines)
-                        seqs.clear()
-            self.current_genome = self.genome
-            if self.genome in self.d:
-                genome_list: List[List[bytes]] = self.d[self.genome]
-                names = genome_list[0]
-                names.append(hash_name)
+    def process_genome(self) -> None:
+        output_lines: str = ''
+        # hash_name: bytes = bytes(hashlib.md5(self.protein).hexdigest(), 'utf-8')
+        if self.current_genome in self.d:
+            genomes: List[List[bytes]] = self.d[self.current_genome]
+            names: List[bytes] = genomes[0]
+            if self.current_genome != self.genome:
+                if len(names) < self.n_min:
+                    self.short_proteins.append(self.current_genome)
+            if genomes[2][0] == b'true':
+                output_lines = '>' + names[-1].decode('UTF-8') + '\n' + self.seq.decode('UTF-8') + '\n'
+                self.ff.write(output_lines)
             else:
-                self.d[self.genome] = [[hash_name], [], [b'false']]
-            self.seq = b""
-            return
+                seqs: List[bytes] = genomes[1]
+                seqs.append(self.seq)
+                if len(names) >= self.n_min:
+                    if self.current_genome in self.short_proteins:
+                        self.short_proteins.remove(self.current_genome)
+                    genomes[2][0] = b'true'
+                    for i, seq in enumerate(seqs):
+                        output_lines = '>' + names[i].decode('UTF-8') + '\n' + seq.decode('UTF-8') + '\n'
+                        self.ff.write(output_lines)
+                    seqs.clear()
+        self.current_genome = self.genome
+        if self.genome in self.d:
+            genome_list: List[List[bytes]] = self.d[self.genome]
+            names = genome_list[0]
+            names.append(self.protein)
+        else:
+            self.d[self.genome] = [[self.protein], [], [b'false']]
+        self.seq = b""
+        return
 
 
 def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int], verbosity: int) -> None:
@@ -140,6 +126,12 @@ def read_file_in_chunks(file_path: str, output: str, n_cpus: int, n_min: int, ve
         log.basicConfig(format="DEBUG: %(asctime)s %(message)s", level=log.DEBUG)
     log.debug(f'Called: {sys._getframe(  ).f_code.co_name}: {locals()}')
     file_size_bytes = os.path.getsize(file_path)
+    if n_cpus == 1:
+        file_paths: List[str] = [file_path, output]
+        bytes_pos: List[int] = [0, file_size_bytes]
+        values: List[int] = [1, n_min]
+        process_chunk(file_paths, bytes_pos, values, verbosity)
+        return
     base_chunk_size = file_size_bytes // n_cpus
     chunks = []
     with open(file_path, "r+b") as file:

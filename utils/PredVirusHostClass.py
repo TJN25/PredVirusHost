@@ -82,7 +82,7 @@ class PredVirusHost:
                 data: List[str] = pickle.load(j)
                 for item in data:
                     short_proteins.append(item)
-        logger.debug(f'Short proteins: {short_proteins}')
+        # logger.debug(f'Short proteins: {short_proteins}')
         
 
     def load_protein_names(self) -> None:
