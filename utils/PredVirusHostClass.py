@@ -5,7 +5,7 @@ import argparse
 import glob
 import pickle
 from typing import Any, List
-from utils import assign_paths, assign_separators 
+from utils import assign_paths, assign_separators, user_prompt
 from process_fasta_input_uc import read_file_in_chunks
 logger = log.getLogger(__name__)
 
@@ -72,8 +72,32 @@ class PredVirusHost:
             msg = f'\n{n_files} data files found in {self.directory}.\n' + msg
         return msg
 
+    def remove_files(self) -> bool:
+        exit_status: bool = False
+        fl: List[str] = glob.glob(f'{self.directory}/fastafile*.faa')
+        dl : List[str] = glob.glob(f'{self.directory}/data*.pkl')
+        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
+        files: tuple[List[str], List[str], List[str]] = (fl, dl, spl)
+        do_remove: str = ''
+        msg: str = ''
+        for file_type in files:
+            if len(file_type) == 0:
+                continue
+            msg = f'Remove the following file? (y/N)\n {file_type}'
+            do_remove = user_prompt(msg, 'alert')
+            logger.debug(f'User input is: {do_remove}')
+            if do_remove.lower() == 'y' or do_remove.lower() == 'yes':
+                for file in file_type:
+                    os.remove(file)
+            else:
+                exit_status = True
+                return exit_status
+        return exit_status
+
     def process_fasta(self) -> None:
         read_file_in_chunks(self.input_file, self.directory, self.cpu_counter, self.n_min, self.verbosity)
+
+    def check_short_proteins(self):
         spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
         short_proteins: List[str] = []
         for file_path in spl:
@@ -82,9 +106,11 @@ class PredVirusHost:
                 data: List[str] = pickle.load(j)
                 for item in data:
                     short_proteins.append(item)
+        for key, value in short_proteins.items():
+            logger.debug(f'Short protein: {key}')
         # logger.debug(f'Short proteins: {short_proteins}')
-        
-
+        pass
+    
     def load_protein_names(self) -> None:
         with open(self.fh, 'r') as fh:
             lines: list[str] = fh.readlines()

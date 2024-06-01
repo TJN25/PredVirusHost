@@ -5,6 +5,8 @@ import subprocess
 import argparse
 from pathlib import Path
 from typing import get_type_hints
+import logging as log
+from utils import get_logger
 import PredVirusHostClass as pvh
 
 help_title = """
@@ -20,6 +22,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('-o', '--output', default='out')
     parser.add_argument('-n', '--number', default=5)
     parser.add_argument('-c', '--cpu', default=5)
+    parser.add_argument('-d', '--delete', action='store_true')
     parser.add_argument('-f', '--format', required=True,
                         choices=['RefSeq', 'GenBank', 'PROKKA', 'MGRAST'])
     parser.add_argument('-v', dest='verbose', action='count')
@@ -29,10 +32,22 @@ def get_args() -> argparse.Namespace:
 
 if __name__ == '__main__':
     args: argparse.Namespace = get_args()
+    if args.verbose is None:
+        logger = get_logger(0)
+    else:
+        logger = get_logger(args.verbose)
+    logger.info('PredVirusHost starting...')
+    logger.debug(f'predvirushost.py running with args: {args}')
     prediction = pvh.PredVirusHost(args=args)
     files_msg: str = prediction.check_files()
     if files_msg != "":
-        sys.exit(files_msg)
+        if not args.delete:
+            sys.exit(files_msg)
+        exit_status: bool = prediction.remove_files()
+        print(f'Exit status: {exit_status}')
+        if exit_status:
+            sys.exit(files_msg)
+        
     prediction.process_fasta()
     #prediction.load_protein_names()
     #prediction.protein_count()

@@ -1,7 +1,32 @@
 import os
 import sys
+import logging as log
 from pathlib import Path
+import colors
 
+logger = log.getLogger(__name__)
+
+def get_logger(verbosity: int) -> log.Logger:
+    if verbosity == 0:
+        log.basicConfig(format="%(levelname)s: %(message)s")
+    if verbosity == 1:
+        log.basicConfig(format="%(message)s", level=log.INFO)
+    if verbosity == 2:
+        log.basicConfig(format="DEBUG: %(asctime)s %(message)s", level=log.DEBUG)
+    return logger
+
+def user_prompt(msg, type) -> str:
+    user_input: str
+    if type == 'alert':
+        with colors.pretty_output(colors.BOLD, colors.FG_RED) as out: 
+            out.write(msg) 
+        user_input = input("")
+    else:
+        with colors.pretty_output(colors.BOLD) as out: 
+            out.write(msg) 
+        user_input = input("")
+
+    return user_input
 
 def assign_paths(args):
     utils_folder: Path = Path(os.path.dirname(os.path.abspath(__file__)))
