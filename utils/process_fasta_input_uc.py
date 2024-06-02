@@ -40,6 +40,7 @@ class ProcessChunk:
         self.protein: bytes
         self.genome: bytes
         self.seq: bytes = b''
+        self.protein_dict: Dict[bytes, List[bytes]] = {}
         with open(self.file_path, "r+b") as file:
             with open(self.fasta_file, 'a') as self.ff:
                 length = self.end_byte - self.offset
@@ -52,7 +53,7 @@ class ProcessChunk:
 
     def write_chunk(self) -> None:
         with open(os.path.join(self.output, f'data_{self.file_counter}.pkl'), 'wb') as pickle_file:
-            pickle.dump(self.d, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
         with open(os.path.join(self.output, f'short_proteins_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -73,6 +74,8 @@ class ProcessChunk:
     def process_genome(self) -> None:
         output_lines: str = ''
         # hash_name: bytes = bytes(hashlib.md5(self.protein).hexdigest(), 'utf-8')
+        self.protein_dict[self.protein] = [self.current_genome]
+
         if self.current_genome in self.d:
             genomes: List[List[bytes]] = self.d[self.current_genome]
             names: List[bytes] = genomes[0]
