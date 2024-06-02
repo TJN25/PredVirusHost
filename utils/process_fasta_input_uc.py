@@ -53,7 +53,7 @@ class ProcessChunk:
 
     def write_chunk(self) -> None:
         with open(os.path.join(self.output, f'data_{self.file_counter}.pkl'), 'wb') as pickle_file:
-            pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) #TOOD not the correct info written
         with open(os.path.join(self.output, f'short_proteins_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
