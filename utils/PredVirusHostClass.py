@@ -72,7 +72,7 @@ class PredVirusHost:
             msg = f'\n{n_files} data files found in {self.directory}.\n' + msg
         return msg
 
-    def remove_files(self) -> bool:
+    def remove_files(self, force_delete: bool) -> bool:
         exit_status: bool = False
         fl: List[str] = glob.glob(f'{self.directory}/fastafile*.faa')
         dl : List[str] = glob.glob(f'{self.directory}/data*.pkl')
@@ -83,8 +83,11 @@ class PredVirusHost:
         for file_type in files:
             if len(file_type) == 0:
                 continue
-            msg = f'Remove the following file? (y/N)\n {file_type}'
-            do_remove = user_prompt(msg, 'alert')
+            if force_delete:
+                do_remove = 'y'
+            else:
+                msg = f'Remove the following file? (y/N)\n {file_type}'
+                do_remove = user_prompt(msg, 'alert')
             logger.debug(f'User input is: {do_remove}')
             if do_remove.lower() == 'y' or do_remove.lower() == 'yes':
                 for file in file_type:
@@ -106,46 +109,8 @@ class PredVirusHost:
                 data: List[str] = pickle.load(j)
                 for item in data:
                     short_proteins.append(item)
-        for key, value in short_proteins.items():
-            logger.debug(f'Short protein: {key}')
+        for item in short_proteins:
+            logger.debug(f'Short protein: {item}')
         # logger.debug(f'Short proteins: {short_proteins}')
         pass
     
-    def load_protein_names(self) -> None:
-        with open(self.fh, 'r') as fh:
-            lines: list[str] = fh.readlines()
-        self.proteins_dict: dict[str, list[Any]] = {}
-        line: str
-        for line in lines:
-            try:
-                key: str
-                value: str
-                value, key = line.strip().split(' ')
-                value = value[1:]
-            except ValueError:
-                continue
-            if not key in self.proteins_dict:
-                self.proteins_dict[key] = [value]
-            else:
-                self.proteins_dict[key].append(value)
-
-    def protein_count(self) -> None:
-        for key, value in self.proteins_dict.items():
-            length: int = len(value)
-            self.proteins_dict[key] = [value, length]
-
-    def count_filter(self, number: int) -> None:
-        logger.info(f'Number of proteins as a minimum is: {number}')
-        if number == 1:
-            return
-        f = open(f'{self.directory}/tmp1', 'a')
-        with open(self.ff, 'r') as ff:
-            line: str
-            for line in ff:
-                line = line.strip()
-                if len(line) > 0:
-                    if line[0] == ">":
-                        f.write(f'\n{line}\t')
-                    else:
-                        f.write(f'{line}')
-        f.close()

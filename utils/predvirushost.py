@@ -16,14 +16,16 @@ Scores proteins from a FASTA file against models and predicts the host domain of
 
 def get_args() -> argparse.Namespace:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(prog='PredVirusHost',
-                                                              description=help_title
+                                                              description=help_title,
+                                                              allow_abbrev=False
                                                               )
     parser.add_argument('-i', '--input', required=True)
     parser.add_argument('-o', '--output', default='out')
     parser.add_argument('-n', '--number', default=5)
     parser.add_argument('-c', '--cpu', default=5)
-    parser.add_argument('-d', '--delete', action='store_true')
-    parser.add_argument('-f', '--format', required=True,
+    parser.add_argument('--delete', action='store_true')
+    parser.add_argument('--forcedelete', action='store_true')
+    parser.add_argument('--format', required=True,
                         choices=['RefSeq', 'GenBank', 'PROKKA', 'MGRAST'])
     parser.add_argument('-v', dest='verbose', action='count')
     args: argparse.Namespace = parser.parse_args()
@@ -43,12 +45,12 @@ if __name__ == '__main__':
     if files_msg != "":
         if not args.delete:
             sys.exit(files_msg)
-        exit_status: bool = prediction.remove_files()
-        print(f'Exit status: {exit_status}')
+        exit_status: bool = prediction.remove_files(args.forcedelete)
+        logger.debug(f'Exit status: {exit_status}')
         if exit_status:
             sys.exit(files_msg)
-        
     prediction.process_fasta()
+    prediction.check_short_proteins()
     #prediction.load_protein_names()
     #prediction.protein_count()
     #prediction.count_filter(number=args.number)
