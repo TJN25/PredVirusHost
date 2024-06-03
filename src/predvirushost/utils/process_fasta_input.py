@@ -40,6 +40,9 @@ class ProcessChunk:
         self.genome: bytes
         self.seq: bytes = b''
         self.protein_dict: Dict[bytes, List[bytes]] = {}
+        self.output_lines: str = ''
+        do_add_to_dict: bool = False
+        do_write_fasta: bool = False
         with open(self.file_path, "r+b") as file:
             with open(self.fasta_file, 'a') as self.ff:
                 length = self.end_byte - self.offset
@@ -48,7 +51,14 @@ class ProcessChunk:
                 ) as mmapped_file:
                     mmapped_file.seek(self.start_byte - self.offset)
                     for line in iter(mmapped_file.readline, b""):
-                        self.process_line(line)
+                        do_add_to_dict = self.process_line(line)
+                        if not do_add_to_dict:
+                            continue
+                        do_write_fasta = self.add_to_dict()
+                        if not do_write_fasta:
+                            continue
+                        self.ff.write(self.output_lines)
+
 
     def write_chunk(self) -> None:
         with open(os.path.join(self.output, f'data_{self.file_counter}.pkl'), 'wb') as pickle_file:
@@ -56,34 +66,34 @@ class ProcessChunk:
         with open(os.path.join(self.output, f'short_proteins_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def process_line(self, line: bytes) -> None:
+    def process_line(self, line: bytes) -> bool:
         #TOOD include other formats
         if line[:1] == b'\n' or line[:1] == b'\r': 
-            return
+            return False
         if line[:1] != b'>':
             self.seq += line
-            return
+            return False
         line = line.replace(b' ', b'*')
         self.protein = line
         words: list[bytes] = line.split(b"[")#]
         gl: list[bytes] = words[1:]
         self.genome = b''.join(gl)
-        self.process_genome()
-        return
+        return True
 
-    def process_genome(self) -> None:
-        output_lines: str = ''
+    def add_to_dict(self) -> bool:
+        do_write: bool = False
+        self.output_lines = ''
         self.protein_dict[self.protein[1:].rstrip()] = [self.genome.rstrip()]
 
         if self.current_genome in self.d:
             genomes: List[List[bytes]] = self.d[self.current_genome]
             names: List[bytes] = genomes[0]
             if self.current_genome != self.genome:
-                if len(names) < self.n_min:
+                if len(names) < self.n_min and self.current_genome not in self.short_proteins:
                     self.short_proteins.append(self.current_genome)
             if genomes[2][0] == b'true':
-                output_lines = names[-1].decode('UTF-8') + '\n' + self.seq.decode('UTF-8') + '\n'
-                self.ff.write(output_lines)
+                self.output_lines = names[-1].decode('UTF-8') + '\n' + self.seq.decode('UTF-8') + '\n'
+                do_write = True
             else:
                 seqs: List[bytes] = genomes[1]
                 seqs.append(self.seq)
@@ -92,8 +102,8 @@ class ProcessChunk:
                         self.short_proteins.remove(self.current_genome)
                     genomes[2][0] = b'true'
                     for i, seq in enumerate(seqs):
-                        output_lines = names[i].decode('UTF-8') + '\n' + seq.decode('UTF-8') + '\n'
-                        self.ff.write(output_lines)
+                        self.output_lines += names[i].decode('UTF-8') + '\n' + seq.decode('UTF-8') + '\n'
+                        do_write = True
                     seqs.clear()
         self.current_genome = self.genome
         if self.genome in self.d:
@@ -103,7 +113,7 @@ class ProcessChunk:
         else:
             self.d[self.genome] = [[self.protein], [], [b'false']]
         self.seq = b""
-        return
+        return do_write
 
 
 def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int], verbosity: int) -> None:
