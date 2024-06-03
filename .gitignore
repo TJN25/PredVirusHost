@@ -1,6 +1,8 @@
 data/*
 .DS_Store
 utils/__pycache__/
+src/predvirushost/utils/__pycache__/
+src/predvirushost/__pycache__/
 utils/build/
 build/*
 build/
