@@ -74,7 +74,7 @@ class ProcessChunk:
     def process_genome(self) -> None:
         output_lines: str = ''
         # hash_name: bytes = bytes(hashlib.md5(self.protein).hexdigest(), 'utf-8')
-        self.protein_dict[self.protein] = [self.current_genome]
+        self.protein_dict[self.protein] = [self.genome]
 
         if self.current_genome in self.d:
             genomes: List[List[bytes]] = self.d[self.current_genome]
