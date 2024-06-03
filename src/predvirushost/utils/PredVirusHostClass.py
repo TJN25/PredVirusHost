@@ -4,7 +4,7 @@ import logging as log
 import argparse
 import glob
 import pickle
-from typing import Any, List
+from typing import List
 from predvirushost.utils.utils import assign_paths, assign_separators, user_prompt
 from predvirushost.utils.process_fasta_input_uc import read_file_in_chunks
 logger = log.getLogger(__name__)
@@ -37,7 +37,7 @@ class PredVirusHost:
         logger.debug(f'using {self.separators} as separator values')
         paths: tuple[str, str, str, str] = assign_paths(args)
         self.paths: dict[str, str] = {}
-        self.paths['utils'] = paths[0]
+        self.paths['data'] = paths[0]
         self.paths['pvh'] = paths[1]
         self.paths['user'] = paths[2]
         self.paths['user_out'] = paths[3]
@@ -114,3 +114,8 @@ class PredVirusHost:
         # logger.debug(f'Short proteins: {short_proteins}')
         pass
     
+    def run_hmmsearch(self) -> None:
+        logger.debug(f'Looking for models in: {self.paths['data']}')
+        print(self.paths['data'])
+        fd: List[str] = glob.glob(f'{self.paths['data']}/*.hmm')
+        logger.debug(f'Models found: {fd}')

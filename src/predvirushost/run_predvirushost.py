@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 
-import os
 import sys
-import subprocess
 import argparse
-from pathlib import Path
-from typing import get_type_hints
-import logging as log
+import logging 
 from predvirushost.utils.utils import get_logger
 import predvirushost.utils.PredVirusHostClass as pvh
 
@@ -24,6 +20,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('-o', '--output', default='out')
     parser.add_argument('-n', '--number', default=5)
     parser.add_argument('-c', '--cpu', default=5)
+    parser.add_argument('-d', '--data', required=True)
     parser.add_argument('--delete', action='store_true')
     parser.add_argument('--forcedelete', action='store_true')
     parser.add_argument('--format', required=True,
@@ -51,3 +48,4 @@ if __name__ == '__main__':
             sys.exit(files_msg)
     prediction.process_fasta()
     prediction.check_short_proteins()
+    prediction.run_hmmsearch()

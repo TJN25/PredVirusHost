@@ -3,7 +3,6 @@ import os
 import mmap
 import multiprocessing
 import pickle
-import hashlib
 import logging as log
 from typing import Dict, List
 logger = log.getLogger(__name__)
@@ -53,11 +52,12 @@ class ProcessChunk:
 
     def write_chunk(self) -> None:
         with open(os.path.join(self.output, f'data_{self.file_counter}.pkl'), 'wb') as pickle_file:
-            pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) #TOOD not the correct info written
+            pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
         with open(os.path.join(self.output, f'short_proteins_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def process_line(self, line: bytes) -> None:
+        #TOOD include other formats
         if line[:1] == b'\n' or line[:1] == b'\r': 
             return
         if line[:1] != b'>':
@@ -73,7 +73,6 @@ class ProcessChunk:
 
     def process_genome(self) -> None:
         output_lines: str = ''
-        # hash_name: bytes = bytes(hashlib.md5(self.protein).hexdigest(), 'utf-8')
         self.protein_dict[self.protein[1:].rstrip()] = [self.genome.rstrip()]
 
         if self.current_genome in self.d:

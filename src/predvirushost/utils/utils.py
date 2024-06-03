@@ -37,11 +37,11 @@ def check_keys(d: dict, n: int) -> None:
         print(key)
 
 def assign_paths(args):
-    utils_folder: Path = Path(os.path.dirname(os.path.abspath(__file__)))
-    predvirushost_folder: Path = utils_folder.parent.absolute()
+    predvirushost_folder: Path = Path(os.path.dirname(os.path.abspath(__file__)))
     user_folder: str = os.getcwd()
     user_output_folder: str = os.path.join(user_folder, args.output)
-    return str(utils_folder), str(predvirushost_folder), user_folder, user_output_folder
+    data_folder: str = os.path.join(user_folder, args.data)
+    return str(data_folder), str(predvirushost_folder), user_folder, user_output_folder
 
 
 def file_reformat(separators: tuple[int, int, str], input_file: str, fasta_file: str, header_file: str):
