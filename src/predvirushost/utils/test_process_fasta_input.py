@@ -23,7 +23,7 @@ class TestProcessFastaInput(unittest.TestCase):
         self.assertEqual(result_2, False)
         self.assertEqual(result_3, False)
         self.assertEqual(chunk.genome, b'Something\n')
-        self.assertEqual(chunk.protein[1:].rstrip(), b'First*[Something')
+        self.assertEqual(chunk.protein[1:].rstrip(), b'First [Something')
         self.assertEqual(chunk.seq, b'MADXMVIP\n')
 
     def test_add_to_dict(self):

@@ -74,7 +74,7 @@ class ProcessChunk:
         if line[:1] != b'>':
             self.seq += line
             return False
-        line = line.replace(b' ', b'*')
+        # line = line.replace(b' ', b'*')
         self.protein = line
         words: list[bytes] = line.split(b"[")#]
         gl: list[bytes] = words[1:]

@@ -48,4 +48,5 @@ if __name__ == '__main__':
             sys.exit(files_msg)
     prediction.process_fasta()
     prediction.check_short_proteins()
+    prediction.check_hmm()
     prediction.run_hmmsearch()
