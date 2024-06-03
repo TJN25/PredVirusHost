@@ -3,7 +3,7 @@ import os
 import mmap
 import multiprocessing
 import pickle
-import hashlib
+#import hashlib
 import logging as log
 from typing import Dict, List
 logger = log.getLogger(__name__)

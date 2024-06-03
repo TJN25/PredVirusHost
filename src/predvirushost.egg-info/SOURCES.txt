@@ -1,0 +1,16 @@
+README.txt
+setup.py
+src/predvirushost/__init__.py
+src/predvirushost/run_predvirushost.py
+src/predvirushost.egg-info/PKG-INFO
+src/predvirushost.egg-info/SOURCES.txt
+src/predvirushost.egg-info/dependency_links.txt
+src/predvirushost.egg-info/top_level.txt
+src/predvirushost/utils/PredVirusHostClass.py
+src/predvirushost/utils/__init__.py
+src/predvirushost/utils/colors.py
+src/predvirushost/utils/my_logging.py
+src/predvirushost/utils/process_fasta_input.py
+src/predvirushost/utils/process_fasta_input_uc.py
+src/predvirushost/utils/testing.py
+src/predvirushost/utils/utils.py

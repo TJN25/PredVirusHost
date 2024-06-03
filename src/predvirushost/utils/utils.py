@@ -2,7 +2,7 @@ import os
 import sys
 import logging as log
 from pathlib import Path
-import colors
+from . import colors 
 
 logger = log.getLogger(__name__)
 
@@ -27,6 +27,14 @@ def user_prompt(msg, type) -> str:
         user_input = input("")
 
     return user_input
+
+def check_keys(d: dict, n: int) -> None:
+    i = 0
+    for key in d:
+        i += 1
+        if i > n:
+            return
+        print(key)
 
 def assign_paths(args):
     utils_folder: Path = Path(os.path.dirname(os.path.abspath(__file__)))

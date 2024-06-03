@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!python
+
 import os
 import sys
 import subprocess
@@ -6,8 +7,8 @@ import argparse
 from pathlib import Path
 from typing import get_type_hints
 import logging as log
-from utils import get_logger
-import PredVirusHostClass as pvh
+from predvirushost.utils.utils import get_logger
+import predvirushost.utils.PredVirusHostClass as pvh
 
 help_title = """
 Scores proteins from a FASTA file against models and predicts the host domain of each genome/contig.
@@ -31,7 +32,6 @@ def get_args() -> argparse.Namespace:
     args: argparse.Namespace = parser.parse_args()
     return (args)
 
-
 if __name__ == '__main__':
     args: argparse.Namespace = get_args()
     if args.verbose is None:
@@ -51,6 +51,3 @@ if __name__ == '__main__':
             sys.exit(files_msg)
     prediction.process_fasta()
     prediction.check_short_proteins()
-    #prediction.load_protein_names()
-    #prediction.protein_count()
-    #prediction.count_filter(number=args.number)
