@@ -29,7 +29,7 @@ class ProcessChunk:
         self.fasta_file: str = os.path.join(self.output, f"fastafile_{self.file_counter}.faa")
         log.info(f'Processing chunk {self.file_counter} from byte <{self.start_byte}> to byte <{self.end_byte}>')
 
-    def setup_chunk_values(self) -> None:
+    def create_chunk_variables(self) -> None:
         self.d: dict[bytes, List[List[bytes]]] = {}
         self.current_genome: bytes = b""
         self.short_proteins: List[bytes] = []
@@ -126,7 +126,7 @@ def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int]
         log.basicConfig(format="DEBUG: %(asctime)s %(message)s", level=log.DEBUG)
     log.debug(f'Called: {sys._getframe(  ).f_code.co_name}: {locals()}')
     chunk = ProcessChunk(file_paths, bytes_pos, values, verbosity)
-    chunk.setup_chunk_values()
+    chunk.create_chunk_variables()
     chunk.read_chunk()
     chunk.write_chunk()
     return
