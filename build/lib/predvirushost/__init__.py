@@ -1,5 +1,4 @@
 import predvirushost.run_predvirushost
-print('importing from __init_.py')
 """
 PredVirusHost
 

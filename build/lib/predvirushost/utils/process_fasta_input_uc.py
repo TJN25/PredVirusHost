@@ -3,7 +3,7 @@ import os
 import mmap
 import multiprocessing
 import pickle
-#import hashlib
+import hashlib
 import logging as log
 from typing import Dict, List
 logger = log.getLogger(__name__)
@@ -74,7 +74,7 @@ class ProcessChunk:
     def process_genome(self) -> None:
         output_lines: str = ''
         # hash_name: bytes = bytes(hashlib.md5(self.protein).hexdigest(), 'utf-8')
-        self.protein_dict[self.protein] = [self.genome]
+        self.protein_dict[self.protein[1:].rstrip()] = [self.genome.rstrip()]
 
         if self.current_genome in self.d:
             genomes: List[List[bytes]] = self.d[self.current_genome]
@@ -83,7 +83,7 @@ class ProcessChunk:
                 if len(names) < self.n_min:
                     self.short_proteins.append(self.current_genome)
             if genomes[2][0] == b'true':
-                output_lines = '>' + names[-1].decode('UTF-8') + '\n' + self.seq.decode('UTF-8') + '\n'
+                output_lines = names[-1].decode('UTF-8') + '\n' + self.seq.decode('UTF-8') + '\n'
                 self.ff.write(output_lines)
             else:
                 seqs: List[bytes] = genomes[1]
@@ -93,7 +93,7 @@ class ProcessChunk:
                         self.short_proteins.remove(self.current_genome)
                     genomes[2][0] = b'true'
                     for i, seq in enumerate(seqs):
-                        output_lines = '>' + names[i].decode('UTF-8') + '\n' + seq.decode('UTF-8') + '\n'
+                        output_lines = names[i].decode('UTF-8') + '\n' + seq.decode('UTF-8') + '\n'
                         self.ff.write(output_lines)
                     seqs.clear()
         self.current_genome = self.genome
