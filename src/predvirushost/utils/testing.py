@@ -1,5 +1,5 @@
 import os
-import process_fasta_input_uc as pf
+import process_fasta_input as pf
 
 file_path: str = "/Users/nicth99p/bin/projects/PredVirusHost/sequences/protein/archaeal-virus-new.faa"
 out_path: str = "/Users/nicth99p/bin/projects/PredVirusHost/out_test/"

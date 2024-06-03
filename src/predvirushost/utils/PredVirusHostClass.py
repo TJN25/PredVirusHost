@@ -6,7 +6,7 @@ import glob
 import pickle
 from typing import List
 from predvirushost.utils.utils import assign_paths, assign_separators, user_prompt
-from predvirushost.utils.process_fasta_input_uc import read_file_in_chunks
+from predvirushost.utils.process_fasta_input import read_file_in_chunks
 logger = log.getLogger(__name__)
 
 class PredVirusHost:
