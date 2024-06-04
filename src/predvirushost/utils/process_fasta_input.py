@@ -69,6 +69,7 @@ class ProcessChunk:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def split_protein_name(self, line: bytes) -> None:
+        line = line.replace(b' ', b'*') 
         start_pos: int = self.separators[0]
         end_pos: int = self.separators[1]
         delim: bytes = self.separators[2]
@@ -77,12 +78,12 @@ class ProcessChunk:
         if start_pos > end_pos:
             words: list[bytes] = line.split(delim)#]
             gl: list[bytes] = words[start_pos:]
-            self.genome = b''.join(gl)
+            self.genome = delim.join(gl)
             return
-        if start_pos > end_pos:
+        if start_pos < end_pos:
             words: list[bytes] = line.split(delim)#]
             gl: list[bytes] = words[start_pos:end_pos]
-            self.genome = b''.join(gl)
+            self.genome = delim.join(gl).replace(b'>', b'')
             return
 
     def process_line(self, line: bytes) -> bool:
@@ -92,7 +93,6 @@ class ProcessChunk:
         if line[:1] != b'>':
             self.seq += line
             return False
-        line = line.replace(b' ', b'*') # Almost certainly not needed but keeping in case hmmsearch gives me problems
         self.split_protein_name(line)
         return True
 
@@ -108,7 +108,7 @@ class ProcessChunk:
                 if len(names) < self.n_min and self.current_genome not in self.short_proteins:
                     self.short_proteins.append(self.current_genome)
             if genomes[2][0] == b'true':
-                self.output_lines = names[-1].decode('UTF-8') + '\n' + self.seq.decode('UTF-8') + '\n'
+                self.output_lines = names[-1].decode('UTF-8') + self.seq.decode('UTF-8')
                 do_write = True
             else:
                 seqs: List[bytes] = genomes[1]
@@ -118,7 +118,7 @@ class ProcessChunk:
                         self.short_proteins.remove(self.current_genome)
                     genomes[2][0] = b'true'
                     for i, seq in enumerate(seqs):
-                        self.output_lines += names[i].decode('UTF-8') + '\n' + seq.decode('UTF-8') + '\n'
+                        self.output_lines += names[i].decode('UTF-8') +  seq.decode('UTF-8')
                         do_write = True
                     seqs.clear()
         self.current_genome = self.genome
