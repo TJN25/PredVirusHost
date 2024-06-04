@@ -11,7 +11,7 @@ class TestProcessFastaInput(unittest.TestCase):
         file_paths: List[str] = ['test_data/test.faa', 'test_data/test_output']
         bytes_pos: List[int] = [0, file_size_bytes]
         values: List[int] = [1, 5]
-        chunk = ProcessChunk(file_paths, bytes_pos, values, 0)
+        chunk = ProcessChunk(file_paths, bytes_pos, values, (1, 0, b'['), 0)
         chunk.create_chunk_variables()
         line_1: bytes = b'>First [Something\n'
         line_2: bytes = b'\n'
@@ -23,7 +23,7 @@ class TestProcessFastaInput(unittest.TestCase):
         self.assertEqual(result_2, False)
         self.assertEqual(result_3, False)
         self.assertEqual(chunk.genome, b'Something\n')
-        self.assertEqual(chunk.protein[1:].rstrip(), b'First [Something')
+        self.assertEqual(chunk.protein[1:].rstrip(), b'First*[Something')
         self.assertEqual(chunk.seq, b'MADXMVIP\n')
 
     def test_add_to_dict(self):
@@ -31,7 +31,7 @@ class TestProcessFastaInput(unittest.TestCase):
         file_paths: List[str] = ['test_data/test.faa', 'test_data/test_output']
         bytes_pos: List[int] = [0, file_size_bytes]
         values: List[int] = [1, 5]
-        chunk = ProcessChunk(file_paths, bytes_pos, values, 0)
+        chunk = ProcessChunk(file_paths, bytes_pos, values, (1, 0, b'['), 0)
         chunk.create_chunk_variables()
         chunk.genome = b'[Something'
         chunk.protein = b'>First [Something\n'

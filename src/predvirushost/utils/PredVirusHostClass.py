@@ -5,7 +5,8 @@ import logging as log
 import argparse
 import glob
 import pickle
-from typing import List
+import pandas as pd
+from typing import List, Dict
 from predvirushost.utils.utils import assign_paths, assign_separators, user_prompt
 from predvirushost.utils.process_fasta_input import read_file_in_chunks
 logger = log.getLogger(__name__)
@@ -132,6 +133,56 @@ class PredVirusHost:
             msg = f'\nCannot find required models or hmmsearch executable.\n' + msg
         return msg
 
+    def preprocess_single_file(self, file: str) -> None:
+        index: int = int(file.split('_')[-1].split('.')[0])
+        df = pd.read_csv(file, sep='\s+', comment='#', header=None)
+        df_small = df.iloc[:,[0,2,4,5]]
+        df_small.columns = ['protein', 'model', 'evalue', 'bitscore']
+
+        with open(f'{self.directory}/data_{index}.pkl', 'rb') as fp:
+            lookup: Dict[bytes, bytes] = pickle.load(fp)
+            lookup_df = pd.DataFrame(lookup.items())
+            lookup_df.columns = ['protein', 'genome']
+            lookup_df = lookup_df.stack().str.decode('utf-8').unstack()
+            merged_df = df_small.join(lookup_df.set_index('protein'), on='protein', how='outer')
+            # merged_df = pd.merge(df_small, lookup_df, on="protein", left_index=True)
+            print(merged_df.iloc[:,:])
+
+    def preprocess_results(self) -> None:
+        logger.info(f'Processing results in: {self.data_path}')
+        arVOG_results: List[str] = glob.glob(f'{self.directory}/arVOG_res_*.tbl')
+        self.preprocess_single_file(arVOG_results[0])
+
+        # baPOG_results: List[str] = glob.glob(f'{self.directory}/baPOG_res_*.tbl')
+        # euVOG_results: List[str] = glob.glob(f'{self.directory}/euVOG_res_*.tbl')
+        # d: Dict[str, List[str]] = {}
+        # model_index: int = 1
+        # words: List[str]
+        # word: str
+        # index: int
+        # print(arVOG_results)
+        # out_file_words: List[str] = arVOG_results[0].split('.')[:-1]
+        # out_file: str = '.'.join(out_file_words)
+        # out_file += '_formatted.tbl'
+        # with open(out_file, 'a') as f_out:
+        #     with open(arVOG_results[0], 'r') as f_res:
+        #         for line in f_res:
+        #             if line[0] == '#':
+        #                 continue
+        #             words = line.split('-')
+        #             for index, word in enumerate(words):
+        #                 if 'VOG_' or 'POG_' in word:
+        #                     model_index = index
+        #                 else:
+        #                     continue
+        #             protein: str = '-'.join(words[:model_index]).strip()
+        #             model: str = words[model_index].strip()
+        #             remainder: str = '-'.join(words[model_index + 1:]).strip()
+        #             values: List[str] = remainder.split()
+        #             values_string: str = '","'.join(values) 
+        #             values_string = '"' + values_string + '"'
+        #             f_out.write(f'"{protein}","{model}",{values_string}') 
+
     def set_logging(self, verbose) -> None:
         if verbose is None:
             self.verbosity: int = 0
@@ -147,17 +198,18 @@ class PredVirusHost:
         self.logger.info(" ")
 
     def set_variables(self, args) -> None:
-        self.format: str = args.format
-        self.n_min: int = int(args.number)
-        self.separators: tuple[int, int, str] = assign_separators(self.format)
-        self.cpu_counter: int = int(args.cpu)
-        max_cpus: int | None = os.cpu_count()
-        if isinstance(max_cpus, int):
-            self.cpu_counter: int = min(self.cpu_counter, max_cpus)
-        self.logger.debug(f'running on {self.cpu_counter} cpus')
-        self.logger.debug(f'minimum number of proteins selected as {self.n_min}')
-        self.logger.debug(f'using {self.format} for the formatting of protein strings')
-        self.logger.debug(f'using {self.separators} as separator values')
+        if not args.process_results_only:
+            self.format: str = args.format
+            self.n_min: int = int(args.number)
+            self.separators: tuple[int, int, bytes] = assign_separators(self.format)
+            self.cpu_counter: int = int(args.cpu)
+            max_cpus: int | None = os.cpu_count()
+            if isinstance(max_cpus, int):
+                self.cpu_counter: int = min(self.cpu_counter, max_cpus)
+            self.logger.debug(f'running on {self.cpu_counter} cpus')
+            self.logger.debug(f'minimum number of proteins selected as {self.n_min}')
+            self.logger.debug(f'using {self.format} for the formatting of protein strings')
+            self.logger.debug(f'using {self.separators} as separator values')
         paths: tuple[str, str, str] = assign_paths(args)
         self.data_path = paths[0]
         self.directory: str = paths[2]

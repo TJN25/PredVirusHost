@@ -39,7 +39,7 @@ class ProcessChunk:
         self.protein: bytes
         self.genome: bytes
         self.seq: bytes = b''
-        self.protein_dict: Dict[bytes, List[bytes]] = {}
+        self.protein_dict: Dict[bytes, bytes] = {}
         self.output_lines: str = ''
 
     def read_chunk(self) -> None:
@@ -92,14 +92,14 @@ class ProcessChunk:
         if line[:1] != b'>':
             self.seq += line
             return False
-        # line = line.replace(b' ', b'*') # Almost certainly not needed but keeping in case hmmsearch gives me problems
+        line = line.replace(b' ', b'*') # Almost certainly not needed but keeping in case hmmsearch gives me problems
         self.split_protein_name(line)
         return True
 
     def add_to_dict(self) -> bool:
         do_write: bool = False
         self.output_lines = ''
-        self.protein_dict[self.protein[1:].rstrip()] = [self.genome.rstrip()]
+        self.protein_dict[self.protein[1:].rstrip()] = self.genome.rstrip()
 
         if self.current_genome in self.d:
             genomes: List[List[bytes]] = self.d[self.current_genome]

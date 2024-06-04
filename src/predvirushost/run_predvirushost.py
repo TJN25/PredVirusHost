@@ -54,3 +54,5 @@ if __name__ == '__main__':
         if not args.preprocess_only:
             prediction.check_hmm()
             prediction.run_hmmsearch()
+    if not args.preprocess_only:
+        prediction.preprocess_results()
