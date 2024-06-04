@@ -6,13 +6,17 @@ import argparse
 import glob
 import pickle
 import pandas as pd
-from typing import List, Dict
+from typing import List, Dict, Any
 from predvirushost.utils.utils import assign_paths, assign_separators, user_prompt
 from predvirushost.utils.process_fasta_input import read_file_in_chunks
 logger = log.getLogger(__name__)
 
 class PredVirusHost:
-    def __init__(self, args: argparse.Namespace) -> None:
+    def __init__(self, args: Dict[str, Any]) -> None:
+        for key, value in args.items():
+            setattr(self, key, value)
+        print(self.input)
+        # super(PredVirusHost, self).__init__()
         self.logger: log.Logger = logger
         self.set_logging(args.verbose)
         self.logger.info(f'Initialising PredVirusHost for {args.input}')

@@ -66,7 +66,6 @@ class TestProcessFastaInput(unittest.TestCase):
         self.assertEqual(result_4, True) 
         self.assertEqual(chunk.output_lines, '>Second*[Else\nSVGARMIP\n') 
 
-        
         #TODO test for the change of false to true when n_min in reached
         #TODO test output lines for output when true and output when looping
 
@@ -79,7 +78,6 @@ class TestProcessFastaInput(unittest.TestCase):
         chunk.split_protein_name(line) 
         self.assertEqual(chunk.protein, b'>First*[Something\n') #Test the reformat
         self.assertEqual(chunk.genome, b'Something\n') #Test genome split for RefSeq
-
 
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (0, 1, b'|'), 0)
         chunk.create_chunk_variables()
@@ -94,3 +92,7 @@ class TestProcessFastaInput(unittest.TestCase):
         line: bytes = b'>First _Something_else_like_this\n'
         chunk.split_protein_name(line) 
         self.assertEqual(chunk.genome, b'First*_Something_else') #Test genome split for mgrast
+
+
+
+

@@ -3,6 +3,7 @@
 import sys
 import argparse
 import logging 
+from typing import Any, Dict
 from predvirushost.utils.utils import get_logger
 import predvirushost.utils.PredVirusHostClass as pvh
 
@@ -39,7 +40,8 @@ if __name__ == '__main__':
         logger = get_logger(args.verbose)
     logger.info('PredVirusHost starting...')
     logger.debug(f'predvirushost.py running with args: {args}')
-    prediction = pvh.PredVirusHost(args=args)
+    args_d: Dict[str, Any] = vars(args)
+    prediction = pvh.PredVirusHost(args=args_d)
     if not args.process_results_only:
         files_msg: str = prediction.check_files()
         if files_msg != "":
