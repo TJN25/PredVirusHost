@@ -2,7 +2,6 @@ import sys
 import subprocess
 import os
 import logging as log
-import argparse
 import glob
 import pickle
 import pandas as pd
@@ -13,19 +12,15 @@ logger = log.getLogger(__name__)
 
 class PredVirusHost:
     def __init__(self, args: Dict[str, Any]) -> None:
-        for key, value in args.items():
-            setattr(self, key, value)
-        print(self.input)
-        # super(PredVirusHost, self).__init__()
         self.logger: log.Logger = logger
-        self.set_logging(args.verbose)
-        self.logger.info(f'Initialising PredVirusHost for {args.input}')
+        self.set_logging(args['verbose'])
+        self.logger.info(f'Initialising PredVirusHost for {args['input']}')
         self.set_variables(args)
 
     def check_files(self) -> str:
-        fl: List[str] = glob.glob(f'{self.directory}/fastafile*.faa')
-        dl : List[str] = glob.glob(f'{self.directory}/data*.pkl')
-        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
+        fl: List[str] = glob.glob(f'{self.output_directory}/fastafile*.faa')
+        dl : List[str] = glob.glob(f'{self.output_directory}/data*.pkl')
+        spl : List[str] = glob.glob(f'{self.output_directory}/short_proteins*.pkl')
         msg: str = ""
         n_files: int = 0
         return_val: bool = False
@@ -43,14 +38,14 @@ class PredVirusHost:
             return_val = True
 
         if return_val:
-            msg = f'\n{n_files} data files found in {self.directory}.\n' + msg
+            msg = f'\n{n_files} data files found in {self.output_directory}.\n' + msg
         return msg
 
     def remove_files(self, force_delete: bool) -> bool:
         exit_status: bool = False
-        fl: List[str] = glob.glob(f'{self.directory}/fastafile*.faa')
-        dl : List[str] = glob.glob(f'{self.directory}/data*.pkl')
-        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
+        fl: List[str] = glob.glob(f'{self.output_directory}/fastafile*.faa')
+        dl : List[str] = glob.glob(f'{self.output_directory}/data*.pkl')
+        spl : List[str] = glob.glob(f'{self.output_directory}/short_proteins*.pkl')
         files: tuple[List[str], List[str], List[str]] = (fl, dl, spl)
         do_remove: str = ''
         msg: str = ''
@@ -72,10 +67,10 @@ class PredVirusHost:
         return exit_status
 
     def process_fasta(self) -> None:
-        read_file_in_chunks(self.input_file, self.directory, self.cpu_counter, self.n_min, self.separators, self.verbosity)
+        read_file_in_chunks(self.input_file, self.output_directory, self.n_cpus, self.n_min, self.separators, self.verbosity)
 
     def check_short_proteins(self):
-        spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
+        spl : List[str] = glob.glob(f'{self.output_directory}/short_proteins*.pkl')
         short_proteins: List[str] = []
         for file_path in spl:
             logger.debug(f'reading file {file_path}')
@@ -91,7 +86,7 @@ class PredVirusHost:
     
     def run_hmmsearch(self) -> None:
         models_list: List[str] = ['arVOG', 'baPOG', 'euVOG']
-        fasta_files_list: List[str] = glob.glob(f'{self.directory}/fastafile*.faa')
+        fasta_files_list: List[str] = glob.glob(f'{self.output_directory}/fastafile*.faa')
         file_number: str
         model: str
         fasta_file: str
@@ -100,8 +95,8 @@ class PredVirusHost:
                 continue
             for model in models_list:
                 file_number = fasta_file.split('_')[-1].split('.')[0]
-                hmmsearch_command: List[str] = ['hmmsearch', '--tblout', f'{self.directory}/{model}_res_{file_number}.tbl',
-                                                '--noali', '--cpu', f'{self.cpu_counter}', f'{self.data_path}/{model}.hmm',
+                hmmsearch_command: List[str] = ['hmmsearch', '--tblout', f'{self.output_directory}/{model}_res_{file_number}.tbl',
+                                                '--noali', '--cpu', f'{self.n_cpus}', f'{self.data_path}/{model}.hmm',
                                                 f'{fasta_file}']
                 logger.info(f'Running hmmsearch with:\n {hmmsearch_command}')
                 subprocess.run(hmmsearch_command, 
@@ -143,28 +138,27 @@ class PredVirusHost:
         df_small = df.iloc[:,[0,2,4,5]]
         df_small.columns = ['protein', 'model', 'evalue', 'bitscore']
 
-        with open(f'{self.directory}/data_{index}.pkl', 'rb') as fp:
+        with open(f'{self.output_directory}/data_{index}.pkl', 'rb') as fp:
             lookup: Dict[bytes, bytes] = pickle.load(fp)
             lookup_df = pd.DataFrame(lookup.items())
             lookup_df.columns = ['protein', 'genome']
             lookup_df = lookup_df.stack().str.decode('utf-8').unstack()
             merged_df = df_small.join(lookup_df.set_index('protein'), on='protein', how='outer')
-            # merged_df = pd.merge(df_small, lookup_df, on="protein", left_index=True)
-            print(merged_df.iloc[:,:])
+            logger.debug(merged_df.iloc[:,:])
 
     def preprocess_results(self) -> None:
         logger.info(f'Processing results in: {self.data_path}')
-        arVOG_results: List[str] = glob.glob(f'{self.directory}/arVOG_res_*.tbl')
+        arVOG_results: List[str] = glob.glob(f'{self.output_directory}/arVOG_res_*.tbl')
         self.preprocess_single_file(arVOG_results[0])
 
-        # baPOG_results: List[str] = glob.glob(f'{self.directory}/baPOG_res_*.tbl')
-        # euVOG_results: List[str] = glob.glob(f'{self.directory}/euVOG_res_*.tbl')
+        # baPOG_results: List[str] = glob.glob(f'{self.output_directory}/baPOG_res_*.tbl')
+        # euVOG_results: List[str] = glob.glob(f'{self.output_directory}/euVOG_res_*.tbl')
         # d: Dict[str, List[str]] = {}
         # model_index: int = 1
         # words: List[str]
         # word: str
         # index: int
-        # print(arVOG_results)
+        # logger.debug(arVOG_results)
         # out_file_words: List[str] = arVOG_results[0].split('.')[:-1]
         # out_file: str = '.'.join(out_file_words)
         # out_file += '_formatted.tbl'
@@ -201,24 +195,24 @@ class PredVirusHost:
         self.logger.debug("Debug mode on.")
         self.logger.info(" ")
 
-    def set_variables(self, args) -> None:
-        if not args.process_results_only:
-            self.format: str = args.format
-            self.n_min: int = int(args.number)
+    def set_variables(self, args: Dict[str, Any]) -> None:
+        if not args['process_results_only']:
+            self.format: str = args['format']
+            self.n_min: int = int(args['number'])
             self.separators: tuple[int, int, bytes] = assign_separators(self.format)
-            self.cpu_counter: int = int(args.cpu)
+            self.n_cpus: int = int(args['cpu'])
             max_cpus: int | None = os.cpu_count()
             if isinstance(max_cpus, int):
-                self.cpu_counter: int = min(self.cpu_counter, max_cpus)
-            self.logger.debug(f'running on {self.cpu_counter} cpus')
+                self.n_cpus: int = min(self.n_cpus, max_cpus)
+            self.logger.debug(f'running on {self.n_cpus} cpus')
             self.logger.debug(f'minimum number of proteins selected as {self.n_min}')
             self.logger.debug(f'using {self.format} for the formatting of protein strings')
             self.logger.debug(f'using {self.separators} as separator values')
         paths: tuple[str, str, str] = assign_paths(args)
         self.data_path = paths[0]
-        self.directory: str = paths[2]
-        self.logger.info(f'Output will be saved in {self.directory}.')
-        self.input_file: str = os.path.join(paths[1], args.input)
-        self.ff: str = os.path.join(self.directory, "fastafile.faa")
-        self.fh: str = os.path.join(self.directory, "fasta-headers.txt")
+        self.output_directory: str = paths[2]
+        self.logger.info(f'Output will be saved in {self.output_directory}.')
+        self.input_file: str = os.path.join(paths[1], args['input'])
+        self.ff: str = os.path.join(self.output_directory, "fastafile.faa")
+        self.fh: str = os.path.join(self.output_directory, "fasta-headers.txt")
         self.genomes: dict[str, tuple[list[str], int]] = {}

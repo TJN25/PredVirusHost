@@ -1,6 +1,7 @@
 import os
 import sys
 import logging as log
+from typing import Dict, Any
 from pathlib import Path
 from . import colors 
 
@@ -35,10 +36,10 @@ def check_keys(d: dict, n: int) -> None:
             return
         print(key)
 
-def assign_paths(args):
+def assign_paths(args: Dict[str, Any]):
     user_folder: str = os.getcwd()
-    user_output_folder: str = os.path.join(user_folder, args.output)
-    data_folder: str = os.path.join(user_folder, args.data)
+    user_output_folder: str = os.path.join(user_folder, args['output_path'])
+    data_folder: str = os.path.join(user_folder, args['data_path'])
     return str(data_folder),  user_folder, user_output_folder
 
 def user_selects_separators() -> tuple[int, int, bytes]:
