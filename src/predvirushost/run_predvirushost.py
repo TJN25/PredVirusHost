@@ -22,6 +22,8 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('-c', '--cpu', default=5)
     parser.add_argument('-d', '--data', required=True)
     parser.add_argument('--delete', action='store_true')
+    parser.add_argument('--preprocess_only', action='store_true')
+    parser.add_argument('--process_results_only', action='store_true')
     parser.add_argument('--forcedelete', action='store_true')
     parser.add_argument('--format', required=True,
                         choices=['RefSeq', 'GenBank', 'PROKKA', 'MGRAST'])
@@ -38,15 +40,17 @@ if __name__ == '__main__':
     logger.info('PredVirusHost starting...')
     logger.debug(f'predvirushost.py running with args: {args}')
     prediction = pvh.PredVirusHost(args=args)
-    files_msg: str = prediction.check_files()
-    if files_msg != "":
-        if not args.delete:
-            sys.exit(files_msg)
-        exit_status: bool = prediction.remove_files(args.forcedelete)
-        logger.debug(f'Exit status: {exit_status}')
-        if exit_status:
-            sys.exit(files_msg)
-    prediction.process_fasta()
-    prediction.check_short_proteins()
-    prediction.check_hmm()
-    prediction.run_hmmsearch()
+    if not args.process_results_only:
+        files_msg: str = prediction.check_files()
+        if files_msg != "":
+            if not args.delete:
+                sys.exit(files_msg)
+            exit_status: bool = prediction.remove_files(args.forcedelete)
+            logger.debug(f'Exit status: {exit_status}')
+            if exit_status:
+                sys.exit(files_msg)
+        prediction.process_fasta()
+        prediction.check_short_proteins()
+        if not args.preprocess_only:
+            prediction.check_hmm()
+            prediction.run_hmmsearch()

@@ -91,16 +91,16 @@ class PredVirusHost:
         model: str
         fasta_file: str
         for fasta_file in fasta_files_list:
+            if fasta_file.split('/')[-1] != 'fastafile_1.faa':
+                continue
             for model in models_list:
                 file_number = fasta_file.split('_')[-1].split('.')[0]
                 hmmsearch_command: List[str] = ['hmmsearch', '--tblout', f'{self.directory}/{model}_res_{file_number}.tbl',
                                                 '--noali', '--cpu', f'{self.cpu_counter}', f'{self.data_path}/{model}.hmm',
                                                 f'{fasta_file}']
-                print(hmmsearch_command)
-
-        # logger.info(f'Running hmmsearch with:\n {hmmsearch_command}')
-        # subprocess.run(hmmsearch_command, 
-        #                stdout=subprocess.DEVNULL)
+                logger.info(f'Running hmmsearch with:\n {hmmsearch_command}')
+                subprocess.run(hmmsearch_command, 
+                               stdout=subprocess.DEVNULL)
 
     def check_hmm(self) -> str:
         return_val: bool = False
