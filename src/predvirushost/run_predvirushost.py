@@ -26,7 +26,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('--process_results_only', action='store_true')
     parser.add_argument('--forcedelete', action='store_true')
     parser.add_argument('--format', required=True,
-                        choices=['RefSeq', 'GenBank', 'PROKKA', 'MGRAST'])
+                        choices=['RefSeq', 'GenBank', 'PROKKA', 'MGRAST', 'Other'])
     parser.add_argument('-v', dest='verbose', action='count')
     args: argparse.Namespace = parser.parse_args()
     return (args)

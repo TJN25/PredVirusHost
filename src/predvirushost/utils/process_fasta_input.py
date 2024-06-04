@@ -10,7 +10,7 @@ logger = log.getLogger(__name__)
 MMAP_PAGE_SIZE: int = os.sysconf("SC_PAGE_SIZE")
 
 class ProcessChunk:
-    def __init__(self, file_paths: List[str], bytes_pos: List[int], values: List[int], verbosity):
+    def __init__(self, file_paths: List[str], bytes_pos: List[int], values: List[int], separators: tuple[int, int, bytes], verbosity: int):
         if verbosity == 0:
             log.basicConfig(format="%(levelname)s: %(message)s")
         elif verbosity == 1: 
@@ -27,6 +27,7 @@ class ProcessChunk:
         self.page_size: int = os.sysconf("SC_PAGE_SIZE")
         self.offset: int = (self.start_byte // self.page_size) * self.page_size
         self.fasta_file: str = os.path.join(self.output, f"fastafile_{self.file_counter}.faa")
+        self.separators: tuple[int, int, bytes] = separators
         log.info(f'Processing chunk {self.file_counter} from byte <{self.start_byte}> to byte <{self.end_byte}>')
 
     def create_chunk_variables(self) -> None:
@@ -67,6 +68,23 @@ class ProcessChunk:
         with open(os.path.join(self.output, f'short_proteins_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
+    def split_protein_name(self, line: bytes) -> None:
+        start_pos: int = self.separators[0]
+        end_pos: int = self.separators[1]
+        delim: bytes = self.separators[2]
+        self.protein = line
+
+        if start_pos > end_pos:
+            words: list[bytes] = line.split(delim)#]
+            gl: list[bytes] = words[start_pos:]
+            self.genome = b''.join(gl)
+            return
+        if start_pos > end_pos:
+            words: list[bytes] = line.split(delim)#]
+            gl: list[bytes] = words[start_pos:end_pos]
+            self.genome = b''.join(gl)
+            return
+
     def process_line(self, line: bytes) -> bool:
         #TOOD include other formats
         if line[:1] == b'\n' or line[:1] == b'\r': 
@@ -74,11 +92,8 @@ class ProcessChunk:
         if line[:1] != b'>':
             self.seq += line
             return False
-        # line = line.replace(b' ', b'*')
-        self.protein = line
-        words: list[bytes] = line.split(b"[")#]
-        gl: list[bytes] = words[1:]
-        self.genome = b''.join(gl)
+        # line = line.replace(b' ', b'*') # Almost certainly not needed but keeping in case hmmsearch gives me problems
+        self.split_protein_name(line)
         return True
 
     def add_to_dict(self) -> bool:
@@ -117,7 +132,7 @@ class ProcessChunk:
         return do_write
 
 
-def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int], verbosity: int) -> None:
+def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int], separators: tuple[int, int, bytes], verbosity: int) -> None:
     if verbosity == 0:
         log.basicConfig(format="%(levelname)s: %(message)s")
     elif verbosity == 1: 
@@ -125,13 +140,13 @@ def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int]
     else:
         log.basicConfig(format="DEBUG: %(asctime)s %(message)s", level=log.DEBUG)
     log.debug(f'Called: {sys._getframe(  ).f_code.co_name}: {locals()}')
-    chunk = ProcessChunk(file_paths, bytes_pos, values, verbosity)
+    chunk = ProcessChunk(file_paths, bytes_pos, values, separators, verbosity)
     chunk.create_chunk_variables()
     chunk.read_chunk()
     chunk.write_chunk()
     return
 
-def read_file_in_chunks(file_path: str, output: str, n_cpus: int, n_min: int, verbosity: int):
+def read_file_in_chunks(file_path: str, output: str, n_cpus: int, n_min: int, separators: tuple[int, int, bytes], verbosity: int):
     if verbosity == 0:
         log.basicConfig(format="%(levelname)s: %(message)s")
     elif verbosity == 1: 
@@ -144,7 +159,7 @@ def read_file_in_chunks(file_path: str, output: str, n_cpus: int, n_min: int, ve
         file_paths: List[str] = [file_path, output]
         bytes_pos: List[int] = [0, file_size_bytes]
         values: List[int] = [1, n_min]
-        process_chunk(file_paths, bytes_pos, values, verbosity)
+        process_chunk(file_paths, bytes_pos, values, separators, verbosity)
         return
     base_chunk_size = file_size_bytes // n_cpus
     chunks = []
@@ -162,7 +177,7 @@ def read_file_in_chunks(file_path: str, output: str, n_cpus: int, n_min: int, ve
                 file_paths: List[str] = [file_path, output]
                 bytes_pos: List[int] = [start_byte, end_byte]
                 values: List[int] = [file_counter, n_min]
-                chunks.append((file_paths, bytes_pos, values, verbosity))
+                chunks.append((file_paths, bytes_pos, values, separators, verbosity))
                 start_byte = end_byte
 
     with multiprocessing.Pool(processes=n_cpus) as p:

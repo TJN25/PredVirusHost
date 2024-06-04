@@ -25,7 +25,6 @@ def user_prompt(msg, type) -> str:
         with colors.pretty_output(colors.BOLD) as out: 
             out.write(msg) 
         user_input = input("")
-
     return user_input
 
 def check_keys(d: dict, n: int) -> None:
@@ -37,84 +36,61 @@ def check_keys(d: dict, n: int) -> None:
         print(key)
 
 def assign_paths(args):
-    predvirushost_folder: Path = Path(os.path.dirname(os.path.abspath(__file__)))
     user_folder: str = os.getcwd()
     user_output_folder: str = os.path.join(user_folder, args.output)
     data_folder: str = os.path.join(user_folder, args.data)
-    return str(data_folder), str(predvirushost_folder), user_folder, user_output_folder
+    return str(data_folder),  user_folder, user_output_folder
 
-
-def file_reformat(separators: tuple[int, int, str], input_file: str, fasta_file: str, header_file: str):
-    # TODO include the counter at this point for the number of proteins
-    exit_val: bool = False
-    msg: str = ""
-    if os.path.isfile(fasta_file):
-        exit_val = True
-        msg += f'- Fasta file: {fasta_file}\n'
-    if os.path.isfile(header_file):
-        exit_val = True
-        msg += f'- Fasta headers file: {header_file}\n'
-    if exit_val:
-        msg = "Exiting due to already present files.\n\n" + msg + \
-            "\nPlease select new file names or move the existings files so that they are not written over.\n"
-        sys.exit(msg)
-
-    ff = open(fasta_file, 'a')
-    fh = open(header_file, 'a')
-    with open(input_file, 'r') as fi:
-        line: str
-        for line in fi:
-            line = line.strip()
-            line = line.replace(' ', '*')
-            if len(line) == 0:
+def user_selects_separators() -> tuple[int, int, bytes]:
+    valid_response: int = 0
+    selected_response: int = 0
+    values: list[int] = [0, 0] 
+    incorrect_responses: int = 0
+    separator: bytes = b''                                                                                                                                                                                                  
+    msgs: list[str] = ['Please provide the delimitor that indicates where the genome name begins or ends for the protein names: ',
+                       f'Number of times {separator.decode('UTF-8')} appears before the genome begins: ',
+                       f'Number of times {separator.decode('UTF-8')} appears before the genome ends (0 if genome continues to the end of the line): ',
+                       'Delimitor should be a single character: ',
+                       'Please provide an integer value: ']
+                       
+    while valid_response < 3:
+        user_response: str = user_prompt(msgs[selected_response], 'alert')
+        if valid_response > 0:
+            try:
+                values[valid_response - 1] = int(user_response)
+                valid_response += 1
+                selected_response = valid_response
                 continue
-            ff.write(f'{line}\n')
-            if line[0] == ">":
-                genome: str
-                protein: str
-                genome, protein = split_accessions(line, separators)
-                fh.write(f'{genome} {protein}\n')
-    ff.close()
-    fh.close()
+            except ValueError:
+                incorrect_responses += 1
+                selected_response = 4
+                continue
+        if len(user_response) == 1:
+            separator = bytes(user_response, 'utf-8')
+            valid_response += 1
+            selected_response = valid_response
+        else:
+            incorrect_responses += 1
+            selected_response = 3
+        if incorrect_responses > 5:
+            sys.exit('Exiting...\n Please read the documentation on how to select delim values')
+    return values[0], values[1], separator
 
 
-def split_accessions(line: str, separators: tuple[int, int, str]) -> tuple[str, str]:
-    # TODO make sure each of the tests produce the correct output
-    pos_start, pos_end, delim = separators
-    line = line.replace('>', '')
-    protein: str = line
-    words: list[str] = line.split(delim)
-
-    positions: int = pos_start*10 + pos_end
-    gl: list[str]
-    genome: str = "missing"
-    match positions:
-        case 10:
-            gl = words[pos_start:]
-            genome = ''.join(gl)
-        case 1:
-            gl = words[:pos_end]
-            genome = ''.join(gl)
-        case 3:
-            gl = words[:pos_end]
-            genome = ''.join(gl)
-        case _:
-            pass
-    return genome, protein
-
-
-def assign_separators(input_format: str) -> tuple[int, int, str]:
+def assign_separators(input_format: str) -> tuple[int, int, bytes]:
     match input_format.lower():
         case 'refseq':
-            start_pos, end_pos, separator = 1, 0, "["
+            start_pos, end_pos, separator = 1, 0, b"["
         case 'genbank':
-            start_pos, end_pos, separator = 1, 0, "["
+            start_pos, end_pos, separator = 1, 0, b"["
         case 'prokka':
-            start_pos, end_pos, separator = 0, 1, "_"
+            start_pos, end_pos, separator = 0, 1, b"_"
         case 'mgrast':
-            start_pos, end_pos, separator = 0, 3, "_"
+            start_pos, end_pos, separator = 0, 3, b"_"
         case 'mg-rast':
-            start_pos, end_pos, separator = 0, 3, "_"
+            start_pos, end_pos, separator = 0, 3, b"_"
+        case 'other':
+            start_pos, end_pos, separator = user_selects_separators()
         case _:
             sys.exit(f'File format: {
                      format} not valid. Please provide a valid file format (RefSeq, Genbank, Prokka, MGRAST).')

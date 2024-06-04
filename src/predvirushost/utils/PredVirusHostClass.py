@@ -67,7 +67,7 @@ class PredVirusHost:
         return exit_status
 
     def process_fasta(self) -> None:
-        read_file_in_chunks(self.input_file, self.directory, self.cpu_counter, self.n_min, self.verbosity)
+        read_file_in_chunks(self.input_file, self.directory, self.cpu_counter, self.n_min, self.separators, self.verbosity)
 
     def check_short_proteins(self):
         spl : List[str] = glob.glob(f'{self.directory}/short_proteins*.pkl')
@@ -158,11 +158,11 @@ class PredVirusHost:
         self.logger.debug(f'minimum number of proteins selected as {self.n_min}')
         self.logger.debug(f'using {self.format} for the formatting of protein strings')
         self.logger.debug(f'using {self.separators} as separator values')
-        paths: tuple[str, str, str, str] = assign_paths(args)
+        paths: tuple[str, str, str] = assign_paths(args)
         self.data_path = paths[0]
-        self.directory: str = paths[3]
+        self.directory: str = paths[2]
         self.logger.info(f'Output will be saved in {self.directory}.')
-        self.input_file: str = os.path.join(paths[2], args.input)
+        self.input_file: str = os.path.join(paths[1], args.input)
         self.ff: str = os.path.join(self.directory, "fastafile.faa")
         self.fh: str = os.path.join(self.directory, "fasta-headers.txt")
         self.genomes: dict[str, tuple[list[str], int]] = {}
