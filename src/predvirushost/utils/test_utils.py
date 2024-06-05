@@ -12,3 +12,4 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(paths[0], '/Users/nicth99p/bin/projects/PredVirusHost/data')
         self.assertEqual(paths[1], '/Users/nicth99p/bin/projects/PredVirusHost/predvirushost/src/predvirushost/utils/fasta.faa')
         self.assertEqual(paths[2], '/Users/nicth99p/bin/tmp')
+
