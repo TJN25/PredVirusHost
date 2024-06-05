@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+from os import walk
 import sys
 import argparse
 import logging 
 from typing import Any, Dict
 from predvirushost.utils.utils import get_logger
-import predvirushost.utils.PredVirusHostClass as pvh
+#import predvirushost.utils.PredVirusHostClass as pvh
+import predvirushost.utils.ProcessInput as pi
+import predvirushost.utils.ProcessResults as pr
 
 help_title = """
 Scores proteins from a FASTA file against models and predicts the host domain of each genome/contig.
@@ -41,7 +44,7 @@ def main() -> int:
     logger.info('PredVirusHost starting...')
     logger.debug(f'predvirushost.py running with args: {args}')
     args_d: Dict[str, Any] = vars(args)
-    prediction = pvh.PredVirusHost(args=args_d)
+    prediction = pi.ProcessInput(args=args_d)
     if not args.process_results_only:
         files_msg: str = prediction.check_files()
         if files_msg != "":
@@ -58,7 +61,10 @@ def main() -> int:
             prediction.check_hmm()
             prediction.run_hmmsearch()
     if not args.preprocess_only:
-        prediction.preprocess_results()
+        results = pr.ProcessResults(args_d)
+        results.process_results()
+        results.process_genomes()
+        results.write_genomes(file_type='pkl')
     return 0
 
 if __name__ == '__main__':

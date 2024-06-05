@@ -41,7 +41,7 @@ class ProcessChunk:
         self.protein: bytes
         self.genome: bytes
         self.seq: bytes = b''
-        self.protein_dict: Dict[bytes, bytes] = {}
+        # self.protein_dict: Dict[bytes, bytes] = {}
         self.output_lines: str = ''
 
     def read_chunk(self, *, write_data: bool = True) -> None:
@@ -69,7 +69,8 @@ class ProcessChunk:
     def write_chunk(self) -> None:
         """Write the dictionaries of proteins and short proteins out to files."""
         with open(os.path.join(self.output, f'data_{self.file_counter}.pkl'), 'wb') as pickle_file:
-            pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+            pickle.dump(self.d, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
+            # pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
         with open(os.path.join(self.output, f'short_proteins_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -78,22 +79,21 @@ class ProcessChunk:
         Take in a line that contains a protein name and process with the 
         separator data into a protein name without spaces and a genome name.
         """
-        line = line.replace(b' ', b'*') 
         start_pos: int = self.separators[0]
         end_pos: int = self.separators[1]
         delim: bytes = self.separators[2]
-        self.protein = line
 
         if start_pos > end_pos:
             words: list[bytes] = line.split(delim)#]
             gl: list[bytes] = words[start_pos:]
-            self.genome = delim.join(gl)
-            return
-        if start_pos < end_pos:
+            self.genome = delim.join(gl).rstrip()
+        elif start_pos < end_pos:
             words: list[bytes] = line.split(delim)#]
             gl: list[bytes] = words[start_pos:end_pos]
-            self.genome = delim.join(gl).replace(b'>', b'')
-            return
+            self.genome = delim.join(gl).replace(b'>', b'').rstrip()
+        line = line.replace(b' ', b'*') 
+        self.protein = line
+        return
 
     def process_line(self, line: bytes) -> bool:
         """Take in a line and check if it is blank, a protein sequence or 
@@ -111,7 +111,7 @@ class ProcessChunk:
         """Append protein names, genome names and sequences to a dictionary"""
         do_write: bool = False
         self.output_lines = ''
-        self.protein_dict[self.protein[1:].rstrip()] = self.genome.rstrip()
+        # self.protein_dict[self.protein[1:].rstrip()] = self.genome.rstrip()
 
         if self.current_genome in self.d:
             genomes: List[List[bytes]] = self.d[self.current_genome]
