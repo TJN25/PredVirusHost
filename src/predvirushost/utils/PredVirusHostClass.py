@@ -162,6 +162,30 @@ class PredVirusHost:
             msg = f'\nCannot find required models or hmmsearch executable.\n' + msg
         return msg
 
+    def process_results_chunk(self, index: int) -> None:
+        arvog_file: str = f'{self.output_directory}/arVOG_res_{index}.tbl'
+        bapog_file: str = f'{self.output_directory}/baPOG_res_{index}.tbl'
+        euVOG_file: str = f'{self.output_directory}/euVOG_res_{index}.tbl'
+
+    def process_models(self, model: str, index: int) -> dict[str, List[List[float]]]:
+        file: str = f'{self.output_directory}/{model}_res_{index}.tbl'
+        line: str
+        protein: str
+        current_model: str
+        score: float
+        d: dict[str, List[List[float]]] = {}
+        with open(file, 'r') as f:
+            for line in f:
+                if line[0] == "#":
+                    continue
+                words = line.rstrip().split()
+                protein, current_model, score = words[0, 2, 5]
+                # try:
+                #     d[words[0]] = float(words[1])
+                # except TypeError:
+                #     raise TypeError(f'{words[0]}: {words[1]} cannot be cooerced to type float')
+        return d
+    
     def preprocess_single_file(self, file: str) -> None:
         """Opens an hmmout.tbl file and converts the data to a pandas DataFrame.
         The genome names are read in from the corresponding pickle file and
@@ -180,6 +204,7 @@ class PredVirusHost:
             logger.debug(merged_df.iloc[:,:])
 
     def preprocess_results(self) -> None:
+        self.protein_results_d: Dict[str, List[float]] = {}
         """
         Load and combine the individual hmmout.tbl files, along with the genome
         names and model weightings.
