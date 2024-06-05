@@ -28,9 +28,11 @@ class ProcessChunk:
         self.offset: int = (self.start_byte // self.page_size) * self.page_size
         self.fasta_file: str = os.path.join(self.output, f"fastafile_{self.file_counter}.faa")
         self.separators: tuple[int, int, bytes] = separators
+        self.__create_chunk_variables()
         log.info(f'Processing chunk {self.file_counter} from byte <{self.start_byte}> to byte <{self.end_byte}>')
+        
 
-    def create_chunk_variables(self) -> None:
+    def __create_chunk_variables(self) -> None:
         self.d: dict[bytes, List[List[bytes]]] = {}
         self.current_genome: bytes = b""
         self.short_proteins: List[bytes] = []
@@ -42,7 +44,8 @@ class ProcessChunk:
         self.protein_dict: Dict[bytes, bytes] = {}
         self.output_lines: str = ''
 
-    def read_chunk(self) -> None:
+    def read_chunk(self, *, write_data: bool = True) -> None:
+        """Read in chunk of fasta file line by line and pass to processing functions."""
         do_add_to_dict: bool = False
         do_write_fasta: bool = False
         with open(self.file_path, "r+b") as file:
@@ -59,16 +62,22 @@ class ProcessChunk:
                         do_write_fasta = self.add_to_dict()
                         if not do_write_fasta:
                             continue
-                        self.ff.write(self.output_lines)
+                        if write_data:
+                            self.ff.write(self.output_lines)
 
 
     def write_chunk(self) -> None:
+        """Write the dictionaries of proteins and short proteins out to files."""
         with open(os.path.join(self.output, f'data_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.protein_dict, pickle_file, protocol=pickle.HIGHEST_PROTOCOL) 
         with open(os.path.join(self.output, f'short_proteins_{self.file_counter}.pkl'), 'wb') as pickle_file:
             pickle.dump(self.short_proteins, pickle_file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def split_protein_name(self, line: bytes) -> None:
+        """
+        Take in a line that contains a protein name and process with the 
+        separator data into a protein name without spaces and a genome name.
+        """
         line = line.replace(b' ', b'*') 
         start_pos: int = self.separators[0]
         end_pos: int = self.separators[1]
@@ -87,6 +96,8 @@ class ProcessChunk:
             return
 
     def process_line(self, line: bytes) -> bool:
+        """Take in a line and check if it is blank, a protein sequence or 
+        a protein name."""
         #TOOD include other formats
         if line[:1] == b'\n' or line[:1] == b'\r': 
             return False
@@ -97,6 +108,7 @@ class ProcessChunk:
         return True
 
     def add_to_dict(self) -> bool:
+        """Append protein names, genome names and sequences to a dictionary"""
         do_write: bool = False
         self.output_lines = ''
         self.protein_dict[self.protein[1:].rstrip()] = self.genome.rstrip()
@@ -133,6 +145,8 @@ class ProcessChunk:
 
 
 def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int], separators: tuple[int, int, bytes], verbosity: int) -> None:
+    """Take a section of a file and create a ProcessChunk instance to run
+    over the chunk of the file provided."""
     if verbosity == 0:
         log.basicConfig(format="%(levelname)s: %(message)s")
     elif verbosity == 1: 
@@ -141,12 +155,12 @@ def process_chunk(file_paths: List[str], bytes_pos: List[int], values: List[int]
         log.basicConfig(format="DEBUG: %(asctime)s %(message)s", level=log.DEBUG)
     log.debug(f'Called: {sys._getframe(  ).f_code.co_name}: {locals()}')
     chunk = ProcessChunk(file_paths, bytes_pos, values, separators, verbosity)
-    chunk.create_chunk_variables()
     chunk.read_chunk()
     chunk.write_chunk()
     return
 
 def read_file_in_chunks(file_path: str, output: str, n_cpus: int, n_min: int, separators: tuple[int, int, bytes], verbosity: int):
+    """Split the file into similar sized chunks based on the number of required cores"""
     if verbosity == 0:
         log.basicConfig(format="%(levelname)s: %(message)s")
     elif verbosity == 1: 

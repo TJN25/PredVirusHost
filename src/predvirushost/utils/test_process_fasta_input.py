@@ -13,7 +13,6 @@ class TestProcessFastaInput(unittest.TestCase):
 
     def test_process_line(self):
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (1, 0, b'['), 0)
-        chunk.create_chunk_variables()
 
         line_1: bytes = b'>First [Something\n'
         line_2: bytes = b'\n'
@@ -32,7 +31,6 @@ class TestProcessFastaInput(unittest.TestCase):
 
     def test_add_to_dict(self):
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (1, 0, b'['), 0)
-        chunk.create_chunk_variables()
 
         #First time a new protein and genome is reached
         chunk.genome = b'[Something'
@@ -72,7 +70,6 @@ class TestProcessFastaInput(unittest.TestCase):
     def test_split_protein_name(self):
 
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (1, 0, b'['), 0)
-        chunk.create_chunk_variables()
 
         line: bytes = b'>First [Something\n'
         chunk.split_protein_name(line) 
@@ -80,14 +77,12 @@ class TestProcessFastaInput(unittest.TestCase):
         self.assertEqual(chunk.genome, b'Something\n') #Test genome split for RefSeq
 
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (0, 1, b'|'), 0)
-        chunk.create_chunk_variables()
 
         line: bytes = b'>First |Something\n'
         chunk.split_protein_name(line) 
         self.assertEqual(chunk.genome, b'First*') #Test genome split for genbank
 
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (0, 3, b'_'), 0)
-        chunk.create_chunk_variables()
 
         line: bytes = b'>First _Something_else_like_this\n'
         chunk.split_protein_name(line) 

@@ -12,12 +12,12 @@ Scores proteins from a FASTA file against models and predicts the host domain of
 """
 
 
-def get_args() -> argparse.Namespace:
+def __get_args() -> argparse.Namespace:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(prog='PredVirusHost',
                                                               description=help_title,
                                                               allow_abbrev=False
                                                               )
-    parser.add_argument('-i', '--input', required=True)
+    parser.add_argument('-i', '--input_file', required=True)
     parser.add_argument('-o', '--output_path', default='out')
     parser.add_argument('-n', '--n_min', default=5)
     parser.add_argument('-c', '--n_cpus', default=5)
@@ -32,8 +32,8 @@ def get_args() -> argparse.Namespace:
     args: argparse.Namespace = parser.parse_args()
     return (args)
 
-if __name__ == '__main__':
-    args: argparse.Namespace = get_args()
+def main() -> int:
+    args: argparse.Namespace = __get_args()
     if args.verbose is None:
         logger = get_logger(0)
     else:
@@ -50,11 +50,16 @@ if __name__ == '__main__':
             exit_status: bool = prediction.remove_files(args.forcedelete)
             logger.debug(f'Exit status: {exit_status}')
             if exit_status:
-                sys.exit(files_msg)
+                print(files_msg)
+                return 1
         prediction.process_fasta()
-        prediction.check_short_proteins()
+        prediction.check_short_genomes()
         if not args.preprocess_only:
             prediction.check_hmm()
             prediction.run_hmmsearch()
     if not args.preprocess_only:
         prediction.preprocess_results()
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

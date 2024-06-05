@@ -5,6 +5,7 @@ import logging as log
 import glob
 import pickle
 import pandas as pd
+from pathlib import Path
 from typing import List, Dict, Any
 from predvirushost.utils.utils import assign_paths, assign_separators, user_prompt
 from predvirushost.utils.process_fasta_input import read_file_in_chunks
@@ -13,11 +14,17 @@ logger = log.getLogger(__name__)
 class PredVirusHost:
     def __init__(self, args: Dict[str, Any]) -> None:
         self.logger: log.Logger = logger
-        self.set_logging(args['verbose'])
-        self.logger.info(f'Initialising PredVirusHost for {args['input']}')
-        self.set_variables(args)
+        self.__set_logging(args['verbose'])
+        self.logger.info(f'Initialising PredVirusHost for {args['input_file']}')
+        self.__set_variables(args)
 
-    def check_files(self) -> str:
+    def check_files(self, *, create_directory: bool = True) -> str:
+        """Checks for the presence of existing pvh generated files."""
+
+        if not os.path.isdir(self.output_directory):
+            if create_directory:
+                Path(self.output_directory).mkdir(parents=True, exist_ok=True)
+            return ''
         fl: List[str] = glob.glob(f'{self.output_directory}/fastafile*.faa')
         dl : List[str] = glob.glob(f'{self.output_directory}/data*.pkl')
         spl : List[str] = glob.glob(f'{self.output_directory}/short_proteins*.pkl')
@@ -38,10 +45,12 @@ class PredVirusHost:
             return_val = True
 
         if return_val:
-            msg = f'\n{n_files} data files found in {self.output_directory}.\n' + msg
+            msg = f'\n{n_files} data files found in {self.output_directory}.\n If you wish to process this data use --process_results_only' + msg
+
         return msg
 
     def remove_files(self, force_delete: bool) -> bool:
+        """Removes any existing pvh generated files from the output directory."""
         exit_status: bool = False
         fl: List[str] = glob.glob(f'{self.output_directory}/fastafile*.faa')
         dl : List[str] = glob.glob(f'{self.output_directory}/data*.pkl')
@@ -67,9 +76,14 @@ class PredVirusHost:
         return exit_status
 
     def process_fasta(self) -> None:
+        """Calls the fasta input processor"""
         read_file_in_chunks(self.input_file, self.output_directory, self.n_cpus, self.n_min, self.separators, self.verbosity)
 
-    def check_short_proteins(self):
+    def check_short_genomes(self):
+        """Loads the short protein pickle files and checks if any genomes with
+            less than the minimum number of proteins were split across mulitple
+            files.
+        """
         spl : List[str] = glob.glob(f'{self.output_directory}/short_proteins*.pkl')
         short_proteins: List[str] = []
         for file_path in spl:
@@ -85,6 +99,10 @@ class PredVirusHost:
         #TODO Include proteins that pass these checks
     
     def run_hmmsearch(self) -> None:
+        """
+        Loops over the fasta files and the models running a system call for
+        hmmsearch
+        """
         models_list: List[str] = ['arVOG', 'baPOG', 'euVOG']
         fasta_files_list: List[str] = glob.glob(f'{self.output_directory}/fastafile*.faa')
         file_number: str
@@ -103,6 +121,10 @@ class PredVirusHost:
                                stdout=subprocess.DEVNULL)
 
     def check_hmm(self) -> str:
+        """
+        Checks that all the required files for running hmmsearch exist, including
+        the executable and the files required for processing the data.
+        """
         return_val: bool = False
         required_files: List[str] = ['baPOG.hmm', 'arVOG.hmm', 'euVOG.hmm', 'arVOG_weights.txt', 'euVOG_weights.txt', 'baPOG_weights.txt']
         found_files: List[str] = []
@@ -133,6 +155,9 @@ class PredVirusHost:
         return msg
 
     def preprocess_single_file(self, file: str) -> None:
+        """Opens an hmmout.tbl file and converts the data to a pandas DataFrame.
+        The genome names are read in from the corresponding pickle file and
+        are joined to the data frame."""
         index: int = int(file.split('_')[-1].split('.')[0])
         df = pd.read_csv(file, sep='\s+', comment='#', header=None)
         df_small = df.iloc[:,[0,2,4,5]]
@@ -147,6 +172,10 @@ class PredVirusHost:
             logger.debug(merged_df.iloc[:,:])
 
     def preprocess_results(self) -> None:
+        """
+        Load and combine the individual hmmout.tbl files, along with the genome
+        names and model weightings.
+        """
         logger.info(f'Processing results in: {self.data_path}')
         arVOG_results: List[str] = glob.glob(f'{self.output_directory}/arVOG_res_*.tbl')
         self.preprocess_single_file(arVOG_results[0])
@@ -181,7 +210,7 @@ class PredVirusHost:
         #             values_string = '"' + values_string + '"'
         #             f_out.write(f'"{protein}","{model}",{values_string}') 
 
-    def set_logging(self, verbose) -> None:
+    def __set_logging(self, verbose) -> None:
         if verbose is None:
             self.verbosity: int = 0
             log.basicConfig(format="%(levelname)s: %(message)s")
@@ -195,12 +224,12 @@ class PredVirusHost:
         self.logger.debug("Debug mode on.")
         self.logger.info(" ")
 
-    def set_variables(self, args: Dict[str, Any]) -> None:
+    def __set_variables(self, args: Dict[str, Any]) -> None:
         if not args['process_results_only']:
             self.format: str = args['format']
-            self.n_min: int = int(args['number'])
+            self.n_min: int = int(args['n_min'])
             self.separators: tuple[int, int, bytes] = assign_separators(self.format)
-            self.n_cpus: int = int(args['cpu'])
+            self.n_cpus: int = int(args['n_cpus'])
             max_cpus: int | None = os.cpu_count()
             if isinstance(max_cpus, int):
                 self.n_cpus: int = min(self.n_cpus, max_cpus)
@@ -210,9 +239,9 @@ class PredVirusHost:
             self.logger.debug(f'using {self.separators} as separator values')
         paths: tuple[str, str, str] = assign_paths(args)
         self.data_path = paths[0]
+        self.input_file: str = paths[1]
         self.output_directory: str = paths[2]
         self.logger.info(f'Output will be saved in {self.output_directory}.')
-        self.input_file: str = os.path.join(paths[1], args['input'])
         self.ff: str = os.path.join(self.output_directory, "fastafile.faa")
         self.fh: str = os.path.join(self.output_directory, "fasta-headers.txt")
         self.genomes: dict[str, tuple[list[str], int]] = {}
