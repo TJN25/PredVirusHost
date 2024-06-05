@@ -7,12 +7,20 @@ import pickle
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any
-from predvirushost.utils.utils import assign_paths, assign_separators, user_prompt
+from predvirushost.utils.utils import assign_paths, assign_separators, user_prompt, pretty_output
 from predvirushost.utils.process_fasta_input import read_file_in_chunks
 logger = log.getLogger(__name__)
 
+DEBUG_MODE: bool = True
+
 class PredVirusHost:
     def __init__(self, args: Dict[str, Any]) -> None:
+        if DEBUG_MODE:
+            with pretty_output('BOLD', 'FG_WHITE', 'BG_RED') as out:
+                out.write('DEBUGGING IS ON. BE CAREFUL!!!')
+                out.write('DEBUGGING IS ON. BE CAREFUL!!!')
+                out.write('DEBUGGING IS ON. BE CAREFUL!!!')
+
         self.logger: log.Logger = logger
         self.__set_logging(args['verbose'])
         self.logger.info(f'Initialising PredVirusHost for {args['input_file']}')
@@ -109,7 +117,7 @@ class PredVirusHost:
         model: str
         fasta_file: str
         for fasta_file in fasta_files_list:
-            if fasta_file.split('/')[-1] != 'fastafile_1.faa':
+            if fasta_file.split('/')[-1] != 'fastafile_1.faa' and DEBUG_MODE:
                 continue
             for model in models_list:
                 file_number = fasta_file.split('_')[-1].split('.')[0]

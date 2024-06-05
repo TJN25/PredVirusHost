@@ -20,11 +20,11 @@ def user_prompt(msg, msg_type) -> str:
     different ways."""
     user_input: str
     if msg_type == 'alert':
-        with pretty_output(BOLD, FG_RED) as out: 
+        with pretty_output('BOLD', 'FG_RED') as out: 
             out.write(msg) 
         user_input = input("")
     else:
-        with pretty_output(BOLD) as out: 
+        with pretty_output('BOLD') as out: 
             out.write(msg) 
         user_input = input("")
     return user_input
@@ -108,45 +108,44 @@ def assign_separators(input_format: str) -> tuple[int, int, bytes]:
     return start_pos, end_pos, separator
 
 
-# Special END separator
-END = '0e8ed89a-47ba-4cdb-938e-b8af8e084d5c'
-
-# Text attributes
-ALL_OFF = '\033[0m'
-BOLD = '\033[1m'
-UNDERSCORE = '\033[4m'
-BLINK = '\033[5m'
-REVERSE = '\033[7m'
-CONCEALED = '\033[7m'
-
-# Foreground colors
-FG_BLACK = '\033[30m'
-FG_RED = '\033[31m'
-FG_GREEN = '\033[32m'
-FG_YELLOW = '\033[33m'
-FG_BLUE = '\033[34m'
-FG_MAGENTA = '\033[35m'
-FG_CYAN = '\033[36m'
-FG_WHITE = '\033[37m'
-
-# Background colors
-BG_BLACK = '\033[40m'
-BG_RED = '\033[41m'
-BG_GREEN = '\033[42m'
-BG_YELLOW = '\033[43m'
-BG_BLUE = '\033[44m'
-BG_MAGENTA = '\033[45m'
-BG_CYAN = '\033[46m'
-BG_WHITE = '\033[47m'
-
-
 class pretty_output():
     '''
     Context manager for pretty terminal prints
     '''
 
     def __init__(self, *attr):
-        self.attributes = attr
+        # Special END separator
+        self.END = '0e8ed89a-47ba-4cdb-938e-b8af8e084d5c'
+
+        # Text attributes
+        self.ALL_OFF = '\033[0m'
+        self.BOLD = '\033[1m'
+        self.UNDERSCORE = '\033[4m'
+        self.BLINK = '\033[5m'
+        self.REVERSE = '\033[7m'
+        self.CONCEALED = '\033[7m'
+
+        # Foreground colors
+        self.FG_BLACK = '\033[30m'
+        self.FG_RED = '\033[31m'
+        self.FG_GREEN = '\033[32m'
+        self.FG_YELLOW = '\033[33m'
+        self.FG_BLUE = '\033[34m'
+        self.FG_MAGENTA = '\033[35m'
+        self.FG_CYAN = '\033[36m'
+        self.FG_WHITE = '\033[37m'
+        self.BG_BLACK = '\033[40m'
+        self.BG_RED = '\033[41m'
+        self.BG_GREEN = '\033[42m'
+        self.BG_YELLOW = '\033[43m'
+        self.BG_BLUE = '\033[44m'
+        self.BG_MAGENTA = '\033[45m'
+        self.BG_CYAN = '\033[46m'
+        self.BG_WHITE = '\033[47m'
+
+        self.attributes: str = ''
+        for value in attr:
+            self.attributes += getattr(self,  value)
 
     def __enter__(self):
         return self
@@ -156,5 +155,5 @@ class pretty_output():
 
     def write(self, msg):
         style = ''.join(self.attributes)
-        print('{}{}{}'.format(style, msg.replace(END, ALL_OFF + style), ALL_OFF))
+        print('{}{}{}'.format(style, msg.replace(self.END, self.ALL_OFF + style), self.ALL_OFF))
 
