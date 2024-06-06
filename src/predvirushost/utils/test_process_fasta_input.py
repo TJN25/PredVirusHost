@@ -25,7 +25,7 @@ class TestProcessFastaInput(unittest.TestCase):
         self.assertEqual(result_1, True) #line should be treated as a protein name
         self.assertEqual(result_2, False)
         self.assertEqual(result_3, False)
-        self.assertEqual(chunk.genome, b'Something\n')
+        self.assertEqual(chunk.genome, b'Something')
         self.assertEqual(chunk.protein[1:].rstrip(), b'First*[Something')
         self.assertEqual(chunk.seq, b'MADWMVIP\n')
 
@@ -74,19 +74,19 @@ class TestProcessFastaInput(unittest.TestCase):
         line: bytes = b'>First [Something\n'
         chunk.split_protein_name(line) 
         self.assertEqual(chunk.protein, b'>First*[Something\n') #Test the reformat
-        self.assertEqual(chunk.genome, b'Something\n') #Test genome split for RefSeq
+        self.assertEqual(chunk.genome, b'Something') #Test genome split for RefSeq
 
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (0, 1, b'|'), 0)
 
         line: bytes = b'>First |Something\n'
         chunk.split_protein_name(line) 
-        self.assertEqual(chunk.genome, b'First*') #Test genome split for genbank
+        self.assertEqual(chunk.genome, b'First') #Test genome split for genbank
 
         chunk = ProcessChunk(FILE_PATHS, BYTES_POS, VALUES, (0, 3, b'_'), 0)
 
         line: bytes = b'>First _Something_else_like_this\n'
         chunk.split_protein_name(line) 
-        self.assertEqual(chunk.genome, b'First*_Something_else') #Test genome split for mgrast
+        self.assertEqual(chunk.genome, b'First _Something_else') #Test genome split for mgrast
 
 
 
