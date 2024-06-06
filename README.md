@@ -161,15 +161,15 @@ If other is selected then PredVirusHost will prompt for:
 
 - A delimiter
 
- - is the character that separates the contig name from the protein name/detail
+    - is the character that separates the contig name from the protein name/detail
 
 - A start position
 
- - is the number of delimiters that you must pass to be left with just the contig name.
+    - is the number of delimiters that you must pass to be left with just the contig name.
 
 - An end position
 
- - is the number of delimiters from the end needed to be left with just the contig
+    - is the number of delimiters from the end needed to be left with just the contig
 
 
 
