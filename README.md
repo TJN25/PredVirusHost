@@ -58,7 +58,7 @@ run_predvirushost.py -i /path/to/input/fasta_file.faa \
 By default, PredVirusHost will check if there are already output files in the specified
 output directory in order to prevent overwriting or appending existing files. If you
 want to overwrite existing files this can be done with `--delete` (THIS WILL REMOVE ALL
-FILES named fastafile_*.faa, data_*.pkl, and short_proteins_*.pkl) which will prompt
+FILES named fastafile\_*.faa, data\_*.pkl, and short_proteins\_*.pkl) which will prompt
 for the removal of files. To skip the prompt `--forcedelete` can be added added as well.
 
 The slowest step in the pipeline is `hmmsearch` which is unavoidable due to what hmmsearch
