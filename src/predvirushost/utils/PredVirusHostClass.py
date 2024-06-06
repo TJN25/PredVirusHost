@@ -17,7 +17,7 @@ class PredVirusHost:
 
         self.logger: log.Logger = logger
         self.__set_logging(args['verbose'])
-        self.logger.info(f'Initialising PredVirusHost for {args['input_file']}')
+        # self.logger.info(f'Initialising PredVirusHost for {args['input_file']}')
         self.__set_variables(args)
 
     def __set_logging(self, verbose) -> None:
