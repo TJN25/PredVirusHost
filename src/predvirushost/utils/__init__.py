@@ -4,4 +4,3 @@ from . import PredVirusHostClass
 from . import ProcessInput
 from . import ProcessResults
 from . import AnalyseResults
-from . import colors
