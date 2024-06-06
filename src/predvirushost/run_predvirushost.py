@@ -65,6 +65,8 @@ def main() -> int:
         results.process_results()
         results.process_genomes()
         results.write_genomes(file_type='pkl')
+        results.write_proteins(file_type='pkl')
+        results.write_hosts(file_type='pkl')
     return 0
 
 if __name__ == '__main__':

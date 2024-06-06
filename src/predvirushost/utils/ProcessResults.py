@@ -1,16 +1,44 @@
 import pickle
+import inspect
 from typing import Any, Dict, List
 from predvirushost.utils.PredVirusHostClass import PredVirusHost
+from predvirushost.utils.utils import pretty_output
 
 class ProcessResults(PredVirusHost):
     def __init__(self, args: Dict[str, Any]) -> None:
         super().__init__(args)
         self.d: dict[str, List[List[float]]] = {}
         self.models = ['arVOG', 'euVOG', 'baPOG']
+        self.hosts = ['Archaea', 'Eukaryota', 'Bacteria']
         if self.n_cpus ==  1:
             self.indexes: list[int] = [1]
         else:
             self.indexes: list[int] = list(range(1, self.n_cpus))
+
+
+
+    def assign_host(self, values: list) -> list:
+        model_index: int = values[0].index(max(values[0]))
+        if values[0][model_index] <= 30:
+            return ['None']
+        return [self.hosts[model_index]]
+
+    def get_host_assignments(self) -> None:
+        key: str
+        values: list
+        host: list
+
+        for key, values in self.genome_scores.items():
+            host = self.assign_host(values)
+            self.genome_scores[key][3] = host
+    
+    def create_hosts_dict(self):
+        self.hosts_d: dict[str, list[str]] = {'Archaea': [], 'Eukaryota': [], 'Bacteria': [], 'None': []}
+        for key, value in self.genome_scores.items():
+            self.hosts_d[value[3][0]].append(key)
+
+
+
 
     def split_line(self, line: str) -> tuple[str, str, float]:
         words: List[str] = line.rstrip().split()
@@ -70,7 +98,7 @@ class ProcessResults(PredVirusHost):
                 genome: str = key.decode('UTF-8')
                 genome = self.remove_unwanted_characters(genome)
                 if genome not in self.genome_scores:
-                    self.genome_scores[genome] = [[0,0,0], 0, 0]
+                    self.genome_scores[genome] = [[0,0,0], 0, 0, []]
 
                 for word in values[0]:
                     self.genome_scores[genome][1] += 1
@@ -86,6 +114,8 @@ class ProcessResults(PredVirusHost):
                         self.genome_scores[genome][2] += 1
                     except KeyError:
                         pass
+        self.get_host_assignments()
+        self.create_hosts_dict()
 
     def process_genomes(self):
         self.genome_scores: dict[str, Any] = {}
@@ -100,6 +130,19 @@ class ProcessResults(PredVirusHost):
             with open(file_name, 'wb') as f:
                 pickle.dump(self.genome_scores, f, protocol=pickle.HIGHEST_PROTOCOL) 
 
+    def write_proteins(self, file_type: str, file_name: str | None = None):
+        #Allowing the file_name to be set could cause probelms. Consider removing
+        if file_name is None:
+            file_name = f'{self.output_directory}/proteins.{file_type}'
+        if file_type == 'pkl':
+            with open(file_name, 'wb') as f:
+                pickle.dump(self.d, f, protocol=pickle.HIGHEST_PROTOCOL) 
 
-
+    def write_hosts(self, file_type: str, file_name: str | None = None):
+        #Allowing the file_name to be set could cause probelms. Consider removing
+        if file_name is None:
+            file_name = f'{self.output_directory}/hosts.{file_type}'
+        if file_type == 'pkl':
+            with open(file_name, 'wb') as f:
+                pickle.dump(self.hosts_d, f, protocol=pickle.HIGHEST_PROTOCOL) 
 
