@@ -4,7 +4,7 @@ import mmap
 import multiprocessing
 import pickle
 import logging as log
-from typing import Dict, List
+from typing import List
 logger = log.getLogger(__name__)
 
 MMAP_PAGE_SIZE: int = os.sysconf("SC_PAGE_SIZE")

@@ -1,8 +1,6 @@
 import pickle
-import inspect
 from typing import Any, Dict, List
 from predvirushost.utils.PredVirusHostClass import PredVirusHost
-from predvirushost.utils.utils import pretty_output
 
 class ProcessResults(PredVirusHost):
     def __init__(self, args: Dict[str, Any]) -> None:

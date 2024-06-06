@@ -1,5 +1,4 @@
 import pickle
-import inspect
 from typing import Dict, Any
 from predvirushost.utils.PredVirusHostClass import PredVirusHost
 

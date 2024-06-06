@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 
-from os import walk
 import sys
 import argparse
 import logging 
 from typing import Any, Dict
 from predvirushost.utils.utils import get_logger
-#import predvirushost.utils.PredVirusHostClass as pvh
 import predvirushost.utils.ProcessInput as pi
 import predvirushost.utils.ProcessResults as pr
 
