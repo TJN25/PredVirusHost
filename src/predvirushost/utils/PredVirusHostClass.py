@@ -8,6 +8,7 @@ DEBUG_MODE: bool = False
 
 class PredVirusHost:
     def __init__(self, args: Dict[str, Any]) -> None:
+        self.DEBUG_MODE = DEBUG_MODE
         if DEBUG_MODE:
             with pretty_output('BOLD', 'FG_WHITE', 'BG_RED') as out:
                 out.write('DEBUGGING IS ON. BE CAREFUL!!!')
